@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import threading as th
 
-def index(request):
+def round_robin(request):
 	threads = list()
 	salida = list()
 	for i in range(3):

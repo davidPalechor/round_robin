@@ -6,6 +6,11 @@ import { HttpModule } from '@angular/http';
 import { routes } from './app.routes';
 import { RouterModule } from '@angular/router';
 
+//Servicios
+import { RoundrobinService } from './roundrobin.service';
+
+
+//Componentes
 import { AppComponent } from './app.component';
 import { LandingComponent } from './landing/landing.component';
 
@@ -21,7 +26,9 @@ import { LandingComponent } from './landing/landing.component';
     HttpModule,
     RouterModule.forRoot(routes),
   ],
-  providers: [],
+  providers: [
+    RoundrobinService
+   ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
