@@ -7,7 +7,7 @@ import { RoundrobinService} from '../services/roundrobin.service';
   styleUrls: ['./roundrobin.component.css']
 })
 export class RoundrobinComponent implements OnInit {
-
+  title = "Round Robin"
 	private infoHilo = {}
 	private param = {
     tiempo: null,
