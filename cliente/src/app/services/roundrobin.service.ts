@@ -9,11 +9,20 @@ export class RoundrobinService {
   constructor(private http:Http) { }
 
   getInfoHilos(){
-    console.log(this.apiURL)
   	return this.http.get(this.apiURL)
   		.toPromise()
   		.then(response => response.json())
   		.catch(this.handleError);
+  }
+
+  postAgregarProceso(attr:Object): Promise<any>{
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    
+    return this.http.post(this.apiURL, attr, options)
+    .toPromise()
+    .then(res => console.log(res))
+    .catch(this.handleError);
   }
 
   private handleError(error: any) {

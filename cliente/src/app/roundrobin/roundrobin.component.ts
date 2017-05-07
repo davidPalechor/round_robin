@@ -9,6 +9,13 @@ import { RoundrobinService} from '../services/roundrobin.service';
 export class RoundrobinComponent implements OnInit {
 
 	private infoHilo = {}
+	private param = {
+    tiempo: null,
+    nombre: null,
+    recurso: null,
+    prior:null
+  }
+
   constructor(private roundRobinService:RoundrobinService) { }
 
   ngOnInit() {
@@ -21,5 +28,10 @@ export class RoundrobinComponent implements OnInit {
   	.then(data => {
   		this.infoHilo = data;
   	})
+  }
+
+  postAgregarProceso(){
+  	this.roundRobinService.postAgregarProceso(this.param)
+    .then(() => this.getInfoHilos())
   }
 }
