@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { RoundrobinService } from './services/roundrobin.service';
+import { RoundrobinService } from './roundrobin.service';
 
 describe('RoundrobinService', () => {
   beforeEach(() => {

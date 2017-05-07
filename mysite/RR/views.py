@@ -1,19 +1,32 @@
-from django.shortcuts import render
+import json
+import datetime
+from django.db import connection
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 import threading as th
 
 def round_robin(request):
-	threads = list()
-	salida = list()
-	for i in range(3):
-	    t = th.Thread(target=proceso, args=(i,))
-	    print i
-	    threads.append(t)
-	    salida.append('Hilo ' + str(i))
-	    t.start()
-	return render(request, "round_robin.html",{'out':salida});
+	if request.method == 'GET':
+		threads = list()
+		respuesta = []
+		try:
+			for i in range(3):
+			    t = th.Thread(target=proceso, args=(i,))
+			    context = {}
+			    print i
+			    threads.append(t)
+			    context['num'] = i
+			    respuesta.append(context)
+
+			    t.start()
+		except:
+			return HttpResponseBadRequest('Bad request')
+		return JsonResponse({'num':1, 'id':4}, safe=False)
+	else:
+		return HttpResponseBadRequest('No es un GET')
+		
 
 def fifo(request):
-	return render(request, "fifo.html",{'out':'FIFO'})
+	return JsonResponse(request.method)
 # Create your views here.
 
 def proceso(cont):

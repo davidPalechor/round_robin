@@ -4,11 +4,12 @@ import 'rxjs/add/operator/toPromise';
 
 @Injectable()
 export class RoundrobinService {
-	private apiURL = 'localhost:8000/round_robin/'
+	private apiURL = 'http://localhost:8000/round_robin/'
   
   constructor(private http:Http) { }
 
   getInfoHilos(){
+    console.log(this.apiURL)
   	return this.http.get(this.apiURL)
   		.toPromise()
   		.then(response => response.json())

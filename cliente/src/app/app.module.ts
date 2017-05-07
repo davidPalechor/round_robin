@@ -7,17 +7,19 @@ import { routes } from './app.routes';
 import { RouterModule } from '@angular/router';
 
 //Servicios
-import { RoundrobinService } from './roundrobin.service';
+import { RoundrobinService } from './services/roundrobin.service';
 
 
 //Componentes
 import { AppComponent } from './app.component';
 import { LandingComponent } from './landing/landing.component';
+import { RoundrobinComponent } from './roundrobin/roundrobin.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LandingComponent
+    LandingComponent,
+    RoundrobinComponent
   ],
 
   imports: [
