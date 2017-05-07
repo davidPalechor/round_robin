@@ -1,13 +1,56 @@
 <div class="row">
 	<div class="col-md-4">
-		<ul *ngIf="infoHilo.length> 0">
-			<li *ngFor="let item of infoHilo">
-				numero {{item.num}} - Descripción {{item.desc}}
-			</li>
-		</ul>
-		<div *ngIf="infoHilo.length==0">
-			<h3>No hay procesos</h3>
-		</div>
-		<button class="btn btn-success"> Agregar Proceso</button>
+
+		<form (ngSubmit)="postAgregarProceso()" #agregarProceso="ngForm">
+			<div class="row control-group">
+				<div class="form-group col-xs-12">
+					<label for="nombre">Nombre</label>
+					<input type="text" class="form-control" placeholder="Nombre" id="nombre" required [(ngModel)]="param.nombre" name="nombre">
+				</div>
+			</div>
+			<div class="row control-group">
+				<div class="form-group col-xs-12">
+					<label for="recurso">Recurso</label>
+					<input type="text" class="form-control" placeholder="Recurso" id="recurso" required [(ngModel)]="param.recurso" name="recurso">
+				</div>
+			</div>
+			<div class="row control-group">
+				<div class="form-group col-xs-12">
+					<label for="tiempo">Tiempo</label>
+					<input type="number" class="form-control" placeholder="Tiempo" id="tiempo" required [(ngModel)]="param.tiempo" name="tiempo">
+				</div>
+			</div>
+			<div class="row control-group">
+				<div class="form-group col-xs-12">
+					<label for="prioridad">Prioridad</label>
+					<input type="number" class="form-control" placeholder="Prioridad" id="prior" required [(ngModel)]="param.prior" name="prior">
+				</div>
+			</div>
+			<div class="col-xs-12" *ngIf="infoHilo.length > 0">
+				<table class=" table table-striped">
+					<thead>
+						<tr>
+							<th>Nombre</th>
+							<th>Tiempo</th>
+							<th>Recurso</th>
+							<th>Prioridad</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of infoHilo">
+							<td>{{item.nombre}}</td>
+							<td>{{item.tiempo}}</td>
+							<td>{{item.recurso}}</td>
+							<td>{{item.prior}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div *ngIf="infoHilo.length==0">
+				<h3>No hay procesos</h3>
+			</div>
+			<button class="btn btn-success"> Agregar Proceso</button>
+		</form>
+
 	</div>
 </div>
