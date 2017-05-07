@@ -19,7 +19,6 @@ export class RoundrobinComponent implements OnInit {
   	this.roundRobinService
   	.getInfoHilos()
   	.then(data => {
-  		console.log(typeof data)
   		this.infoHilo = data;
   	})
   }

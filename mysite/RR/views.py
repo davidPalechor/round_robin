@@ -20,7 +20,7 @@ def round_robin(request):
 			    t.start()
 		except:
 			return HttpResponseBadRequest('Bad request')
-		return JsonResponse({'num':1, 'id':4}, safe=False)
+		return JsonResponse(respuesta, safe=False)
 	else:
 		return HttpResponseBadRequest('No es un GET')
 		

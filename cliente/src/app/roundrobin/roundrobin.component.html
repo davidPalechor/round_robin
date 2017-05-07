@@ -1,8 +1,8 @@
 <div class="row">
 	<div class="col-md-4">
 		<ul>
-			<li>
-				{{infoHilo}}
+			<li *ngFor="let item of infoHilo">
+				numero {{item.num}}
 			</li>
 		</ul>
 	</div>
