@@ -14,3 +14,13 @@
 	background: #C1D2FC;
 	overflow: auto;
 }
+
+h1{
+  text-align: center;
+}
+
+.cpu{
+  width: full;
+	height: 220px;
+	overflow: auto;
+}
