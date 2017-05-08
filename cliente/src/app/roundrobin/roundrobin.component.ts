@@ -27,6 +27,7 @@ export class RoundrobinComponent implements OnInit {
     nombre: null,
     recurso: null,
     prior: null,
+    quantum:4
   }
 
   constructor(private roundRobinService: RoundrobinService) { }
