@@ -16,18 +16,24 @@ export class RoundrobinComponent implements OnInit {
   private suspendido = {}
   private cont = 0
   private interval
+  private estado
+  private items_recursos = {}
+  private recurso = {
+    value: null
+  }
 
   private param = {
     tiempo: null,
     nombre: null,
     recurso: null,
-    prior: null
+    prior: null,
   }
 
   constructor(private roundRobinService: RoundrobinService) { }
 
   ngOnInit() {
-    this.getInfoListos();
+    this.getInfoListos()
+    this.getRecursos();
   }
 
   getInfoListos() {
@@ -44,8 +50,8 @@ export class RoundrobinComponent implements OnInit {
       .then(() => this.getInfoListos())
   }
 
-  ejecutarProcesos(){
-    this.interval = Observable.interval(1000).subscribe(x =>{
+  ejecutarProcesos() {
+    this.interval = Observable.interval(1000).subscribe(x => {
       this.postEjecutarProcesos()
     });
     // this.interval=setInterval(function(){this.postEjecutarProcesos();},3000);
@@ -67,6 +73,9 @@ export class RoundrobinComponent implements OnInit {
     //   console.log("Funciona el IF");
     // }
     if (this.cont == 1) {
+      this.estado = 'terminado'
+    }
+    if (this.estado == 'terminado') {
       this.interval.unsubscribe();
     }
   }
@@ -76,5 +85,21 @@ export class RoundrobinComponent implements OnInit {
       .then(data => {
         this.ejecucion = data;
       })//this.ejecucion = this.infoHilo;
+  }
+
+  postCrearRecurso() {
+    this.roundRobinService.postCrearRecurso(this.recurso)
+      .then(() => {
+        console.log("Recurso creado")
+        this.getRecursos();
+      })
+  }
+
+  getRecursos() {
+    this.roundRobinService.getRecursos()
+      .then(data => { this.items_recursos = data })
+  }
+  crearRecursos(recurso) {
+    console.log("Creando recursos")
   }
 }

@@ -1,37 +1,86 @@
 <h1>{{title}}</h1>
 <div class="row">
 	<div class="col-md-4">
-
-		<form (ngSubmit)="postAgregarProceso()" #agregarProceso="ngForm">
-			<div class="row control-group">
-				<div class="form-group col-xs-12">
-					<label for="nombre">Nombre</label>
-					<input type="text" class="form-control" placeholder="Nombre" id="nombre" required [(ngModel)]="param.nombre" name="nombre">
-				</div>
-			</div>
+		<form (ngSubmit)="postCrearRecurso()">
 			<div class="row control-group">
 				<div class="form-group col-xs-12">
 					<label for="recurso">Recurso</label>
-					<input type="text" class="form-control" placeholder="Recurso" id="recurso" required [(ngModel)]="param.recurso" name="recurso">
+					<input type="text" class="form-control" placeholder="Recurso" id="recurso" required [(ngModel)]="recurso.value" name="recurso">
+
 				</div>
 			</div>
-			<div class="row control-group">
-				<div class="form-group col-xs-12">
-					<label for="tiempo">Tiempo</label>
-					<input type="number" class="form-control" placeholder="Tiempo" id="tiempo" required [(ngModel)]="param.tiempo" name="tiempo">
-				</div>
-			</div>
-			<div class="row control-group">
-				<div class="form-group col-xs-12">
-					<label for="prioridad">Prioridad</label>
-					<input type="number" class="form-control" placeholder="Prioridad" id="prior" required [(ngModel)]="param.prior" name="prior">
-				</div>
-			</div>
-			<button class="btn btn-success"> Agregar Proceso</button>
+			<button class="btn btn-success">Agregar Recurso</button>
 		</form>
-		<div class="col-xs-12 centered" *ngIf="infoHilo.length > 0">
-			<h1>Listos</h1>
-			<div class="cola_listos">
+	</div>
+	<form (ngSubmit)="postAgregarProceso()" #agregarProceso="ngForm">
+		<div class="row control-group">
+			<div class="form-group col-xs-12">
+				<label for="nombre">Nombre</label>
+				<input type="text" class="form-control" placeholder="Nombre" id="nombre" required [(ngModel)]="param.nombre" name="nombre">
+			</div>
+		</div>
+		<div class="row control-group" *ngIf="items_recursos.length > 0">
+			<div class="form-group col-xs-12">
+				<label for="recurso">Recurso</label>
+				<select class="col-xs-12 " id="recursos" name="recursos" [(ngModel)]="param.recurso">
+                    <option *ngFor="let recurso of items_recursos" [value]="recurso.recurso">{{recurso.recurso}}</option>
+                </select>
+			</div>
+		</div>
+		<div class="row control-group">
+			<div class="form-group col-xs-12">
+				<label for="tiempo">Tiempo</label>
+				<input type="number" class="form-control" placeholder="Tiempo" id="tiempo" required [(ngModel)]="param.tiempo" name="tiempo">
+			</div>
+		</div>
+		<div class="row control-group">
+			<div class="form-group col-xs-12">
+				<label for="prioridad">Prioridad</label>
+				<input type="number" class="form-control" placeholder="Prioridad" id="prior" required [(ngModel)]="param.prior" name="prior">
+			</div>
+		</div>
+		<button class="btn btn-success" (click)="agregarProceso()"> Agregar Proceso</button>
+	</form>
+</div>
+<div class="col-xs-12 centered" *ngIf="infoHilo.length > 0">
+	<h1>Listos</h1>
+	<div class="cola_listos">
+		<table class=" table table-striped">
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Tiempo</th>
+					<th>Recurso</th>
+					<th>Prioridad</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of infoHilo">
+					<td>{{item.nombre}}</td>
+					<td>{{item.tiempo}}</td>
+					<td>{{item.recurso}}</td>
+					<td>{{item.prior}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="row" *ngIf="infoHilo.length==0">
+	<div class="col-xs-offset-4">
+		<h3>No hay procesos</h3>
+	</div>
+
+</div>
+<div *ngIf="infoHilo.length>0">
+	<button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
+
+</div>
+</div>
+<div class="col-md-8">
+	<div class="row">
+		<h1>CPU</h1>
+		<div class="col-xs-12 centered" *ngIf="ejecucion.length > 0">
+			<div class="cpu">
 				<table class=" table table-striped">
 					<thead>
 						<tr>
@@ -42,7 +91,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr *ngFor="let item of infoHilo">
+						<tr *ngFor="let item of ejecucion">
 							<td>{{item.nombre}}</td>
 							<td>{{item.tiempo}}</td>
 							<td>{{item.recurso}}</td>
@@ -51,48 +100,12 @@
 					</tbody>
 				</table>
 			</div>
-		</div>
-		<div class="row" *ngIf="infoHilo.length==0">
-			<div class="col-xs-offset-4">
-				<h3>No hay procesos</h3>
-			</div>
 
-		</div>
-		<div *ngIf="infoHilo.length>0">
-			<button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
-
-		</div>
-	</div>
-	<div class="col-md-8">
-		<div class="row">
-			<h1>CPU</h1>
-			<div class="col-xs-12 centered" *ngIf="ejecucion.length > 0">
-				<div class="cpu">
-					<table class=" table table-striped">
-						<thead>
-							<tr>
-								<th>Nombre</th>
-								<th>Tiempo</th>
-								<th>Recurso</th>
-								<th>Prioridad</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr *ngFor="let item of ejecucion">
-								<td>{{item.nombre}}</td>
-								<td>{{item.tiempo}}</td>
-								<td>{{item.recurso}}</td>
-								<td>{{item.prior}}</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<div *ngIf="ejecucion.length==0">
-					<div class="col-xs-offset-4">
-						<h3>No hay procesos</h3>
-					</div>
+			<div *ngIf="ejecucion.length==0">
+				<div class="col-xs-offset-4">
+					<h3>No hay procesos</h3>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>

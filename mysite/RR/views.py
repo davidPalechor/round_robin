@@ -13,6 +13,7 @@ listos = []
 suspendidos = []
 bloqueados = []
 ejecutados = []
+recursos = []
 cola_hilos = q.Queue()
 
 
@@ -98,6 +99,31 @@ def ejecutarHilos(request):
         except:
             return HttpResponseBadRequest("Error Interno")
 
+def manejoRecursos(request):
+    if request.method == 'POST':
+        try:
+            global recursos
+
+            context = {}
+            data = request.body
+            info = json.loads(data)
+
+            recurso = info['value']
+            
+            context['recurso'] = recurso
+
+            recursos.append(context)
+            return HttpResponse("Success!")
+        except:
+            return HttpResponseBadRequest("{DJANGO] Error al crear recurso")
+    if request.method == 'GET':
+        try:
+            global recursos
+            print "RECURSOS"
+            print recursos
+            return JsonResponse(recursos, safe=False)
+        except :
+            return HttpResponseBadRequest("ERROR INTERNO")
 
 def listarEjecutados(request):
     if request.method == 'GET':
