@@ -40,6 +40,7 @@ def round_robin(request):
             return HttpResponseBadRequest('Bad request')
         print "METHOD GET"
         print respuesta
+        listos = respuesta
         return JsonResponse(respuesta, safe=False)
     else:
         try:
@@ -89,7 +90,9 @@ def ejecutarHilos(request):
             print hilo.getName()
             aux = listos
             aux.reverse()
+            print aux
             ejecutados.append(aux.pop())
+            print ejecutados
             hilo.start()
             return HttpResponse("Ejecutando")
         except:
