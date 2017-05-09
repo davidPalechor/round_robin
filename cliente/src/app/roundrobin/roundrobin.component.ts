@@ -18,6 +18,11 @@ export class RoundrobinComponent implements OnInit {
   private interval
   private estado
   private items_recursos = {}
+
+  private tiempo_simulacion = {
+    tiempo:null
+  }
+
   private recurso = {
     value: null
   }
@@ -26,8 +31,7 @@ export class RoundrobinComponent implements OnInit {
     tiempo: null,
     nombre: null,
     recurso: null,
-    prior: null,
-    quantum:4
+    quantum: 4
   }
 
   constructor(private roundRobinService: RoundrobinService) { }
@@ -38,10 +42,9 @@ export class RoundrobinComponent implements OnInit {
   }
 
   getInfoListos() {
-    this.roundRobinService
-      .getInfoListos()
+    this.roundRobinService.getInfoListos()
       .then(data => {
-        this.infoHilo = data
+        this.listos = data
         this.cont = data.length;
       })
   }
@@ -62,6 +65,7 @@ export class RoundrobinComponent implements OnInit {
     //this.listarEjecucion()
     this.roundRobinService.postEjecutarProcesos()
       .then(() => {
+        console.log("COMPONENTE: EJECUTANDO")
         this.detenerEjecucion()
         this.listarEjecucion()
         this.getInfoListos();
@@ -88,6 +92,17 @@ export class RoundrobinComponent implements OnInit {
       })//this.ejecucion = this.infoHilo;
   }
 
+  listarSuspendido() {
+    this.roundRobinService.getInfoSuspendido()
+      .then(data => {
+        this.suspendido = data
+      })
+  }
+
+  listarListos(){
+    this.roundRobinService.getListaListos()
+    .then(data => {this.listos = data})
+  }
   postCrearRecurso() {
     this.roundRobinService.postCrearRecurso(this.recurso)
       .then(() => {
@@ -99,8 +114,5 @@ export class RoundrobinComponent implements OnInit {
   getRecursos() {
     this.roundRobinService.getRecursos()
       .then(data => { this.items_recursos = data })
-  }
-  crearRecursos(recurso) {
-    console.log("Creando recursos")
   }
 }

@@ -5,9 +5,11 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class RoundrobinService {
   private apiURL = 'http://localhost:8000/round_robin/'
+  private urlGetListos = 'http://localhost:8000/round_robin/lista_listos/'
   private urlEjecutarProceso = 'http://localhost:8000/round_robin/ejecutar/'
   private urlGetEjecutados = 'http://localhost:8000/round_robin/lista_ejecutados/'
   private urlRecursos = 'http://localhost:8000/round_robin/recursos/'
+  private urlGetSuspendidos = 'http://localshost:8000/round_robin/lista_suspendidos/'
 
   constructor(private http: Http) { }
 
@@ -16,6 +18,13 @@ export class RoundrobinService {
       .toPromise()
       .then(response => response.json())
       .catch(this.handleError);
+  }
+
+  getListaListos(){
+    return this.http.get(this.urlGetListos)
+    .toPromise()
+    .then(response => response.json())
+    .catch(this.handleError);
   }
 
   postAgregarProceso(attr: Object): Promise<any> {
@@ -43,6 +52,13 @@ export class RoundrobinService {
       .toPromise()
       .then(response => response.json())
       .catch(this.handleError);
+  }
+
+  getInfoSuspendido(){
+    return this.http.get(this.urlGetSuspendidos)
+    .toPromise()
+    .then(response => response.json())
+    .catch(this.handleError);
   }
 
   postCrearRecurso(recurso: Object): Promise<any> {

@@ -32,8 +32,10 @@ def round_robin(request):
             # t.start()
 
             for cell in listos:
-                cola_int.put((cell['prior'], cell))
+                print cell
+                cola_int.put((cell['quantum'], cell))
                 crearHilo(cell['nombre'], cell['tiempo'])
+
 
             while not cola_int.empty():
                 respuesta.append(cola_int.get()[1])
@@ -52,35 +54,42 @@ def round_robin(request):
             tiempo = info['tiempo']
             nombre = info['nombre']
             recurso = info['recurso']
-            prior = info['prior']
+            quant = info['quantum']
 
             context['tiempo'] = tiempo
             context['nombre'] = nombre
-            context['prior'] = prior
+            context['quantum'] = quant
             context['recurso'] = recurso
 
             #cola.put((prior, context))
             # print list(cola.queue)
             listos.append(context)
+            print listos
             return HttpResponse("Success!")
         except:
             return HttpResponseBadRequest('Bad request')
 
 
-def fifo(request):
-    return JsonResponse(request.method)
-# Create your views here.
+def listaListos(request):
+    try:
+        global listos
+        print "LISTA LISTOS"
+        print listos
+        return JsonResponse(listos, safe=False)
+    except:
+        return HttpResponseBadRequest("Error en la lista")
 
 
 def crearHilo(nombre, tiempo):
     global cola_hilos
-    print "Creando Hilo"
+    print "Creando Hilo " + nombre
     cola_hilos.put(th.Thread(target=proceso, name=nombre, args=(tiempo, nombre,)))
 
 
 def ejecutarHilos(request):
     if request.method == 'POST':
         try:
+            print "EJECUTANDO HILOS"
             global cola_hilos
             global ejecutados
             global listos
@@ -91,13 +100,15 @@ def ejecutarHilos(request):
             print hilo.getName()
             aux = listos
             aux.reverse()
-            print aux
+            #listos.reverse
             ejecutados.append(aux.pop())
             print ejecutados
+            # listos.reverse()
             hilo.start()
             return HttpResponse("Ejecutando")
         except:
             return HttpResponseBadRequest("Error Interno")
+
 
 def manejoRecursos(request):
     if request.method == 'POST':
@@ -109,7 +120,7 @@ def manejoRecursos(request):
             info = json.loads(data)
 
             recurso = info['value']
-            
+
             context['recurso'] = recurso
 
             recursos.append(context)
@@ -122,13 +133,15 @@ def manejoRecursos(request):
             print "RECURSOS"
             print recursos
             return JsonResponse(recursos, safe=False)
-        except :
+        except:
             return HttpResponseBadRequest("ERROR INTERNO")
+
 
 def listarEjecutados(request):
     if request.method == 'GET':
         try:
             global ejecutados
+            print "LISTA EJECUTADOS"
             return JsonResponse(ejecutados, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
@@ -145,6 +158,6 @@ def proceso(tiempo, hilo):
             print "Esperando"
             evento.wait(5)
         fin = time.time()
-        #print hilo + " " + str(fin - inicio)
+        # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
     return

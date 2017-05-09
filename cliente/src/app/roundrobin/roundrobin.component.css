@@ -24,3 +24,17 @@ h1{
 	height: 220px;
 	overflow: auto;
 }
+
+.suspendidos{
+  width:full;
+  height:300px;
+  overflow:auto;
+	background: rgba(83, 145, 56, 0.2);
+}
+
+.bloqueados{
+  width: full;
+  height:300px;
+  overflow:auto;
+	background: rgba(83, 145, 56, 0.2);
+}
