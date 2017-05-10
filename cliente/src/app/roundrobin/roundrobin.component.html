@@ -1,5 +1,6 @@
 <h1>{{title}}</h1>
 
+
 <!-- FORMULARIOS PARA RECURSOS Y PROCESOS-->
 <div class="row">
     <div class="col-md-4">
@@ -35,7 +36,7 @@
             </div>
             <div class="row control-group">
                 <div class="form-group col-xs-12">
-                    <label for="prioridad">Quántum</label>
+                    <label for="quantum">Quántum</label>
                     <input type="number" class="form-control" placeholder="param.quantum" id="prior" required disabled [(ngModel)]="param.quantum" name="prior">
                     <!--<input type="number" class="form-control" placeholder="Prioridad" id="prior" required [(ngModel)]="param.prior" name="prior">-->
                 </div>
@@ -45,10 +46,122 @@
         <!--FIN FORMULARIO -->
 
         <!--CPU COLAS Y PROCESADORES-->
-        <div class="col-xs-12 centered" *ngIf="listos.length > 0">
-            <h1>Listos</h1>
-            <div class="cola_listos">
-                <table class=" table table-striped">
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-xs-offset-5">
+
+                <div *ngIf="listos.length>0">
+                    <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
+                    <button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h5>Tiempo sesión: {{cronometro}}</h5>
+            <h1>CPU</h1>
+            <div class="col-xs-12 centered" *ngIf="ejecucion.length > 0">
+                <div class="cpu">
+                    <table class=" table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tiempo</th>
+                                <th>Recurso</th>
+                                <th>Quántum</th>
+                                <th>Procesado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of ejecucion">
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.tiempo - tiempo_ejecucion}}</td>
+                                <td>{{item.recurso}}</td>
+                                <td>{{item.quantum}}</td>
+                                <td>{{(tiempo_ejecucion*100)/item.tiempo}}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--COLAS SUSPENDIDOS Y BLOQUEADOS-->
+        <div class="row">
+            <div class="col-xs-6 centered">
+                <h1>Listos</h1>
+                <div class="colas">
+                    <table class=" table table-striped" *ngIf="listos.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tiempo</th>
+                                <th>Recurso</th>
+                                <th>Quántum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of listos">
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.tiempo}}</td>
+                                <td>{{item.recurso}}</td>
+                                <td>{{item.quantum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-xs-6">
+                <h1>Suspendidos</h1>
+                <div class="colas">
+                    <table class=" table table-striped" *ngIf="suspendido.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tiempo</th>
+                                <th>Recurso</th>
+                                <th>Quántum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of suspendido">
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.tiempo}}</td>
+                                <td>{{item.recurso}}</td>
+                                <td>{{item.quantum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 bloqueados">
+                <h1>Bloqueados</h1>
+                <div class="colas">
+                    <table class=" table table-striped" *ngIf="bloqueado.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tiempo</th>
+                                <th>Recurso</th>
+                                <th>Quántum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of bloqueado">
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.tiempo}}</td>
+                                <td>{{item.recurso}}</td>
+                                <td>{{item.quantum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-xs-6 bloqueados">
+                <h1>Terminados</h1>
+                <div class="colas"></div>
+                <table class=" table table-striped" *ngIf="terminado.length > 0">
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -58,94 +171,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of listos">
+                        <tr *ngFor="let item of terminado">
                             <td>{{item.nombre}}</td>
                             <td>{{item.tiempo}}</td>
                             <td>{{item.recurso}}</td>
                             <td>{{item.quantum}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="row" *ngIf="listos.length==0">
-            <div class="col-xs-offset-4">
-                <h3>No hay procesos</h3>
-            </div>
-
-        </div>
-        <div *ngIf="listos.length>0">
-            <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
-            <button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
-        </div>
-    </div>
-    <div class="col-md-8">
-        <div class="row">
-            <h1>CPU {{ejecucion.length}}</h1>
-            <div class="col-xs-12 centered" *ngIf="ejecucion.length > 0">
-                <div class="cpu">
-                    <table class=" table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tiempo</th>
-                                <th>Recurso</th>
-                                <th>Prioridad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of ejecucion">
-                                <td>{{item.nombre}}</td>
-                                <td>{{item.tiempo}}</td>
-                                <td>{{item.recurso}}</td>
-                                <td>{{item.prior}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!--COLAS SUSPENDIDOS Y BLOQUEADOS-->
-        <div class="row">
-            <div class="col-xs-6 suspendidos">
-                <h1>Suspendidos</h1>
-                <table class=" table table-striped" *ngIf="suspendido.length > 0">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Tiempo</th>
-                            <th>Recurso</th>
-                            <th>Prioridad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of suspendido">
-                            <td>{{item.nombre}}</td>
-                            <td>{{item.tiempo}}</td>
-                            <td>{{item.recurso}}</td>
-                            <td>{{item.prior}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="col-xs-6 bloqueados">
-                <h1>Bloqueados</h1>
-                <table class=" table table-striped" *ngIf="suspendido.length > 0">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Tiempo</th>
-                            <th>Recurso</th>
-                            <th>Prioridad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of suspendido">
-                            <td>{{item.nombre}}</td>
-                            <td>{{item.tiempo}}</td>
-                            <td>{{item.recurso}}</td>
-                            <td>{{item.prior}}</td>
                         </tr>
                     </tbody>
                 </table>

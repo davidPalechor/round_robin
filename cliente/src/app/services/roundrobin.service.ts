@@ -10,6 +10,7 @@ export class RoundrobinService {
   private urlGetEjecutados = 'http://localhost:8000/round_robin/lista_ejecutados/'
   private urlRecursos = 'http://localhost:8000/round_robin/recursos/'
   private urlGetSuspendidos = 'http://localshost:8000/round_robin/lista_suspendidos/'
+  private urlGetTerminados = 'http://localhost:8000/round_robin/lista_terminados/'
 
   constructor(private http: Http) { }
 
@@ -22,6 +23,13 @@ export class RoundrobinService {
 
   getListaListos(){
     return this.http.get(this.urlGetListos)
+    .toPromise()
+    .then(response => response.json())
+    .catch(this.handleError);
+  }
+
+  getListaTerminados(){
+    return this.http.get(this.urlGetTerminados)
     .toPromise()
     .then(response => response.json())
     .catch(this.handleError);

@@ -1,40 +1,33 @@
-.ng-valid[required], .ng-valid.required  {
-  border-left: 5px solid #42A948; /* green */
-  padding-left: 10px;
+.ng-valid[required],
+.ng-valid.required {
+    border-left: 5px solid #42A948;
+    /* green */
+    padding-left: 10px;
 }
 
-.ng-invalid:not(form)  {
-  border-left: 5px solid #a94442; /* red */
-  padding-left: 10px;
+.ng-invalid:not(form) {
+    border-left: 5px solid #a94442;
+    /* red */
+    padding-left: 10px;
 }
 
-.cola_listos{
-  width: auto;
-	height: 220px;
-	background: #C1D2FC;
-	overflow: auto;
+h1 {
+    text-align: center;
 }
 
-h1{
-  text-align: center;
+h5 {
+    text-align: right
 }
 
-.cpu{
-  width: full;
-	height: 220px;
-	overflow: auto;
+.cpu {
+    width: full;
+    height: 220px;
+    overflow: auto;
 }
 
-.suspendidos{
-  width:full;
-  height:300px;
-  overflow:auto;
-	background: rgba(83, 145, 56, 0.2);
-}
-
-.bloqueados{
-  width: full;
-  height:300px;
-  overflow:auto;
-	background: rgba(83, 145, 56, 0.2);
+.colas {
+    width: auto;
+    height: 220px;
+    background: rgba(83, 145, 56, 0.2);
+    overflow: auto;
 }
