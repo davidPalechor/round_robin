@@ -17,6 +17,7 @@ export class RoundrobinComponent implements OnInit {
   private terminado = {}
   private cont = 0
   private interval
+  private timer
   private estado
   private items_recursos = {}
 
@@ -24,7 +25,7 @@ export class RoundrobinComponent implements OnInit {
   private cronometro = 0
 
   private tiempo_simulacion = {
-    tiempo:null
+    tiempo: null
   }
 
   private recurso = {
@@ -32,7 +33,7 @@ export class RoundrobinComponent implements OnInit {
   }
 
   private param = {
-    tiempo: null,
+    tiempo: 0,
     nombre: null,
     recurso: null,
     quantum: 4,
@@ -55,12 +56,18 @@ export class RoundrobinComponent implements OnInit {
       })
   }
 
-  cronometrar(){
-    let timer = Observable.timer(1000,1000).subscribe(tiempo => this.cronometro = tiempo);
+  cronometrar() {
+    this.timer = Observable.timer(1000, 1000).subscribe(tiempo => this.cronometro = tiempo);
   }
 
-  tiempo_en_cpu(){
-    let timer = Observable.timer(1000,1000).subscribe(tiempo => this.tiempo_ejecucion = tiempo);
+  tiempo_en_cpu() {
+    this.tiempo_ejecucion = 0
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+      this.tiempo_ejecucion = tiempo
+      if (this.tiempo_ejecucion == this.param.tiempo) {
+        this.detenerEjecucion()
+      }
+    });
   }
 
   postAgregarProceso() {
@@ -69,36 +76,50 @@ export class RoundrobinComponent implements OnInit {
   }
 
   ejecutarProcesos() {
-    this.interval = Observable.interval(1000).subscribe(x => {
-      this.postEjecutarProcesos()
-    });
+    // this.interval = Observable.interval(1000).subscribe(x => {
+    //   this.postEjecutarProcesos()
+    // });
     //this.interval=setInterval(function(){this.postEjecutar Procesos();},3000);
+    this.postEjecutarProcesos()
   }
 
   postEjecutarProcesos() {
     //this.listarEjecucion()
     this.roundRobinService.postEjecutarProcesos()
       .then(() => {
-        console.log("COMPONENTE: EJECUTANDO")
-        this.detenerEjecucion()
+        // this.detenerEjecucion()
         this.listarEjecucion()
         this.tiempo_en_cpu()
-        this.listarTerminados()
+        //this.listarTerminados()
         this.getInfoListos();
       })
   }
 
   detenerEjecucion() {
-    console.log(this.cont);
+    console.log("Numero de procesos en cola %i", this.cont);
     // if (this.cont == 1){
     //   console.log("Funciona el IF");
     // }
-    if (this.cont == 1) {
-      this.estado = 'terminado'
+    //this.terminado = this.ejecucion
+    if (this.cont >= 1) {
+      this.listarTerminados()
+      this.ejecutarProcesos()
+    } else {
+      this.timer.unsubscribe();
+      this.listarTerminados()
+      this.listarEjecucion()
+
+      console.log("Proceso Terminado")
     }
-    if (this.estado == 'terminado') {
-      this.interval.unsubscribe();
-    }
+
+
+
+    // while(this.tiempo_ejecucion != this.param.tiempo){
+    //   console.log("COMPONENTE: PROCESO EJECUCION")
+    // }
+    // if (this.estado == 'terminado') {
+    //   this.interval.unsubscribe();
+    // }
   }
 
   listarEjecucion() {
@@ -115,12 +136,12 @@ export class RoundrobinComponent implements OnInit {
       })
   }
 
-  listarListos(){
+  listarListos() {
     this.roundRobinService.getListaListos()
-    .then(data => {this.listos = data})
+      .then(data => { this.listos = data })
   }
 
-  listarTerminados(){
+  listarTerminados() {
     this.roundRobinService.getListaTerminados()
     .then(data => {this.terminado = data})
   }
@@ -135,7 +156,9 @@ export class RoundrobinComponent implements OnInit {
 
   getRecursos() {
     this.roundRobinService.getRecursos()
-      .then(data => { this.items_recursos = data
-      console.log(data); })
+      .then(data => {
+        this.items_recursos = data
+        console.log(data);
+      })
   }
 }

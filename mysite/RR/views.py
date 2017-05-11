@@ -13,7 +13,7 @@ retorno = "inicio"
 listos = []
 suspendidos = []
 bloqueados = []
-ejecutados = [None, None, None]
+ejecutados = []
 terminados = []
 
 # LISTA DE RECURSOS
@@ -110,13 +110,13 @@ def ejecutarHilos(request):
             global ejecutados
             global listos
 
-            ejecutados = [None, None, None]
+            # ejecutados = []
             estado = 'ejecucion'
             hilo = cola_hilos.get()
             aux = listos
             aux.reverse()
             # listos.reverse
-            ejecutados[1] = aux.pop()
+            ejecutados.append(aux.pop())
             # listos.reverse()
             hilo.start()
 
@@ -157,8 +157,8 @@ def listarEjecutados(request):
     if request.method == 'GET':
         try:
             global ejecutados
-            print "LISTA EJECUTADOS"
-            return JsonResponse(ejecutados[1], safe=False)
+            print "[ListarEjecutados] LISTA EJECUTADOS" + str(ejecutados)
+            return JsonResponse(ejecutados, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
 
@@ -166,7 +166,7 @@ def listarTerminados(request):
     if request.method == 'GET':
         try:
             global terminados
-            print "LISTA TERMINADOS"
+            print "LISTA TERMINADOS" + str(terminados)
             return JsonResponse(terminados, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
@@ -196,15 +196,15 @@ def procesador_1(tiempo, hilo, recurso):
     print "PROCESADOR 1: " + proceso
     fin = 1000000000
     seg = 0
-    while (fin - inicio) < tiempo:
+    while seg < tiempo:
 
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
-    seg = round(fin - inicio)
+        seg = round(fin - inicio)
     
-    terminados.append(ejecutados[1])
-    ejecutados[1] = None
-    print terminados
+    terminados.append(ejecutados.pop())
+    #ejecutados[1] = None
+    #print terminados
     print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO" 
     return
 

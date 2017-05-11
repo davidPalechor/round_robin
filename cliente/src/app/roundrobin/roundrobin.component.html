@@ -110,75 +110,79 @@
                     </table>
                 </div>
             </div>
-            <div class="col-xs-6">
-                <h1>Suspendidos</h1>
-                <div class="colas">
-                    <table class=" table table-striped" *ngIf="suspendido.length > 0">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tiempo</th>
-                                <th>Recurso</th>
-                                <th>Quántum</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of suspendido">
-                                <td>{{item.nombre}}</td>
-                                <td>{{item.tiempo}}</td>
-                                <td>{{item.recurso}}</td>
-                                <td>{{item.quantum}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-6 bloqueados">
-                <h1>Bloqueados</h1>
-                <div class="colas">
-                    <table class=" table table-striped" *ngIf="bloqueado.length > 0">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tiempo</th>
-                                <th>Recurso</th>
-                                <th>Quántum</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of bloqueado">
-                                <td>{{item.nombre}}</td>
-                                <td>{{item.tiempo}}</td>
-                                <td>{{item.recurso}}</td>
-                                <td>{{item.quantum}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
             <div class="col-xs-6 bloqueados">
                 <h1>Terminados</h1>
-                <div class="colas"></div>
-                <table class=" table table-striped" *ngIf="terminado.length > 0">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Tiempo</th>
-                            <th>Recurso</th>
-                            <th>Quántum</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of terminado">
-                            <td>{{item.nombre}}</td>
-                            <td>{{item.tiempo}}</td>
-                            <td>{{item.recurso}}</td>
-                            <td>{{item.quantum}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="colas">
+                    <table class=" table table-striped" *ngIf="terminado.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tiempo</th>
+                                <th>Recurso</th>
+                                <th>Quántum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of terminado">
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.tiempo}}</td>
+                                <td>{{item.recurso}}</td>
+                                <td>{{item.quantum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            <div class="row">
+                <div class="col-xs-6">
+                    <h1>Suspendidos</h1>
+                    <div class="colas">
+                        <table class=" table table-striped" *ngIf="suspendido.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Quántum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of suspendido">
+                                    <td>{{item.nombre}}</td>
+                                    <td>{{item.tiempo}}</td>
+                                    <td>{{item.recurso}}</td>
+                                    <td>{{item.quantum}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-xs-6 bloqueados">
+                    <h1>Bloqueados</h1>
+                    <div class="colas">
+                        <table class=" table table-striped" *ngIf="bloqueado.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Quántum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of bloqueado">
+                                    <td>{{item.nombre}}</td>
+                                    <td>{{item.tiempo}}</td>
+                                    <td>{{item.recurso}}</td>
+                                    <td>{{item.quantum}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
