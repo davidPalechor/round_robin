@@ -9,7 +9,7 @@ export class RoundrobinService {
   private urlEjecutarProceso = 'http://localhost:8000/round_robin/ejecutar/'
   private urlGetEjecutados = 'http://localhost:8000/round_robin/lista_ejecutados/'
   private urlRecursos = 'http://localhost:8000/round_robin/recursos/'
-  private urlGetSuspendidos = 'http://localshost:8000/round_robin/lista_suspendidos/'
+  private urlGetSuspendidos = 'http://localhost:8000/round_robin/lista_suspendidos/'
   private urlGetTerminados = 'http://localhost:8000/round_robin/lista_terminados/'
 
   constructor(private http: Http) { }

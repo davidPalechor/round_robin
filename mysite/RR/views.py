@@ -15,7 +15,7 @@ suspendidos = []
 bloqueados = []
 ejecutados = []
 terminados = []
-
+estado = ''
 # LISTA DE RECURSOS
 recursos = []
 disponibles = []
@@ -59,6 +59,7 @@ def round_robin(request):
             recurso = info['recurso']
             quant = info['quantum']
             procesador = info['procesador']
+            estado = info['estado']
 
             context['tiempo'] = tiempo
             context['nombre'] = nombre
@@ -70,9 +71,8 @@ def round_robin(request):
             # print list(cola.queue)
 
             listos.append(context)
-            print context['tiempo']
             crearHilo(context['nombre'], context['tiempo'],
-                      context['recurso'], context['procesador'])
+                      context['recurso'], context['procesador'], context['quantum'])
             return HttpResponse("Success!")
         except:
             return HttpResponseBadRequest('Bad request')
@@ -87,19 +87,19 @@ def listaListos(request):
         return HttpResponseBadRequest("Error en la lista")
 
 
-def crearHilo(nombre, tiempo, recurso, procesador):
+def crearHilo(nombre, tiempo, recurso, procesador, quantum):
     global cola_hilos
     print "Creando Hilo " + nombre
 
     if procesador == 1:
         cola_hilos.put(th.Thread(target=procesador_1,
-                                 name=nombre, args=(tiempo, nombre, recurso,)))
+                                 name=nombre, args=(tiempo, quantum, recurso,)))
     elif procesador == 2:
         cola_hilos.put(th.Thread(target=procesador_2,
-                                 name=nombre, args=(tiempo, nombre, recurso,)))
+                                 name=nombre, args=(tiempo, quantum, recurso,)))
     else:
         cola_hilos.put(th.Thread(target=procesador_3,
-                                 name=nombre, args=(tiempo, nombre, recurso,)))
+                                 name=nombre, args=(tiempo, quantum, recurso,)))
 
 
 def ejecutarHilos(request):
@@ -109,14 +109,14 @@ def ejecutarHilos(request):
             global cola_hilos
             global ejecutados
             global listos
-
+            
             # ejecutados = []
-            estado = 'ejecucion'
             hilo = cola_hilos.get()
             aux = listos
             aux.reverse()
             # listos.reverse
             ejecutados.append(aux.pop())
+            print ejecutados[0]['nombre']
             # listos.reverse()
             hilo.start()
 
@@ -157,10 +157,25 @@ def listarEjecutados(request):
     if request.method == 'GET':
         try:
             global ejecutados
-            print "[ListarEjecutados] LISTA EJECUTADOS" + str(ejecutados)
+            print "[ListarEjecutados]" + str(ejecutados)
             return JsonResponse(ejecutados, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
+
+
+def listarSuspendidos(request):
+    if request.method == 'GET':
+        try:
+            global suspendidos
+            global estado
+            estado = 'suspendido'
+            while suspendidos == []:
+                print "[ListarSuspendidos] Esperando Arreglo"
+            print "[ListarSuspendidos]" + str(suspendidos) + estado
+            return JsonResponse(suspendidos, safe=False)
+        except:
+            return HttpResponseBadRequest("Error interno")
+
 
 def listarTerminados(request):
     if request.method == 'GET':
@@ -171,7 +186,8 @@ def listarTerminados(request):
         except:
             return HttpResponseBadRequest("Error interno")
 
-def procesador_1(tiempo, hilo, recurso):
+
+def procesador_1(tiempo, quantum, recurso):
     # RECURSOS
     global disponibles
     global en_uso
@@ -182,7 +198,8 @@ def procesador_1(tiempo, hilo, recurso):
     global bloqueados
     global terminados
 
-    #PROCESO ACTUAL
+    global estado
+    # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
     if recurso in disponibles:
@@ -196,20 +213,28 @@ def procesador_1(tiempo, hilo, recurso):
     print "PROCESADOR 1: " + proceso
     fin = 1000000000
     seg = 0
+    t_restante = 0
     while seg < tiempo:
+        print str(seg) + " " + estado
+
+        if estado == 'suspendido':
+            suspendidos.append(ejecutados.pop())
+            print "[PROCESADOR 1] Esperando..."
+            while estado == 'suspendido':
+                evento.wait()
 
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
-    
+
     terminados.append(ejecutados.pop())
     #ejecutados[1] = None
-    #print terminados
-    print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO" 
+    # print terminados
+    print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO"
     return
 
 
-def procesador_2(tiempo, hilo, recurso):
+def procesador_2(tiempo, quantum, recurso):
     evento = th.Event()
     inicio = time.time()
     fin = 1000000000
@@ -220,7 +245,7 @@ def procesador_2(tiempo, hilo, recurso):
     return
 
 
-def procesador_3(tiempo, hilo, recurso):
+def procesador_3(tiempo, quantum, recurso):
     evento = th.Event()
     inicio = time.time()
     fin = 1000000000

@@ -11,16 +11,18 @@ export class RoundrobinComponent implements OnInit {
   title = "Round Robin"
 
   private t_proceso = 0
+  private t_quantum = 0
+
   private listos = []
-  private ejecucion = {}
-  private bloqueado = {}
-  private suspendido = {}
-  private terminado = {}
+  private ejecucion = []
+  private bloqueado = []
+  private suspendido = []
+  private terminado = []
   private cont = 0
   private interval
   private timer
   private estado
-  private items_recursos = {}
+  private items_recursos = []
 
   private tiempo_ejecucion = 0
   private cronometro = 0
@@ -38,7 +40,8 @@ export class RoundrobinComponent implements OnInit {
     nombre: null,
     recurso: null,
     quantum: 0,
-    procesador: 1
+    procesador: 1,
+    estado: 'ejecucion'
   }
 
 
@@ -83,9 +86,15 @@ export class RoundrobinComponent implements OnInit {
   tiempo_en_cpu() {
     this.timer = Observable.timer(1000, 1000).subscribe(tiempo => {
       this.tiempo_ejecucion = tiempo
-      console.log(this.tiempo_ejecucion)
-      if (this.tiempo_ejecucion == this.t_proceso) {
-        this.detenerEjecucion()
+      if (this.t_proceso <= this.t_quantum) {
+        if (this.tiempo_ejecucion == this.t_proceso) {
+          console.log("Funciona")
+          this.detenerEjecucion()
+        }
+      }
+      else if (this.tiempo_ejecucion == this.t_quantum) {
+        console.log("COMPONENTE: listando suspendidos")
+        this.listarSuspendido()
       }
     });
   }
@@ -103,10 +112,8 @@ export class RoundrobinComponent implements OnInit {
     //this.listarEjecucion()
     this.roundRobinService.postEjecutarProcesos()
       .then(() => {
-        // this.detenerEjecucion()
         this.listarEjecucion()
         this.tiempo_en_cpu()
-        //this.listarTerminados()
         this.getInfoListos();
       })
   }
@@ -131,6 +138,7 @@ export class RoundrobinComponent implements OnInit {
       .then(data => {
         this.ejecucion = data
         if (data.length > 0) {
+          this.t_quantum = data[0].quantum
           this.t_proceso = data[0].tiempo
         }
       })
@@ -140,6 +148,9 @@ export class RoundrobinComponent implements OnInit {
     this.roundRobinService.getInfoSuspendido()
       .then(data => {
         this.suspendido = data
+        this.timer.unsubscribe()
+        this.ejecutarProcesos()
+        this.listarEjecucion()
       })
   }
 
