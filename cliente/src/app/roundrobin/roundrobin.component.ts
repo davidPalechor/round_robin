@@ -10,7 +10,8 @@ import { Observable } from 'rxjs/Rx';
 export class RoundrobinComponent implements OnInit {
   title = "Round Robin"
 
-  private listos = {}
+  private t_proceso = 0
+  private listos = []
   private ejecucion = {}
   private bloqueado = {}
   private suspendido = {}
@@ -33,12 +34,13 @@ export class RoundrobinComponent implements OnInit {
   }
 
   private param = {
-    tiempo: 0,
+    tiempo: null,
     nombre: null,
     recurso: null,
-    quantum: 4,
+    quantum: 0,
     procesador: 1
   }
+
 
   constructor(private roundRobinService: RoundrobinService) { }
 
@@ -52,19 +54,37 @@ export class RoundrobinComponent implements OnInit {
     this.roundRobinService.getInfoListos()
       .then(data => {
         this.listos = data
-        this.cont = data.length;
+        this.cont = data.length
       })
   }
 
+  calcularQuantum() {
+    let quantum = 0
+    if (this.cont == 0) {
+      this.param.quantum = this.param.tiempo
+    } else {
+      for (let item of this.listos) {
+        quantum += item.tiempo
+        console.log(quantum)
+      }
+      quantum = Math.round(quantum / this.cont)
+      if (this.param.tiempo >= quantum) {
+        this.param.quantum = Math.ceil(quantum * (2 / 3))
+      } else {
+        this.param.quantum = quantum
+      }
+    }
+  }
+
   cronometrar() {
-    this.timer = Observable.timer(1000, 1000).subscribe(tiempo => this.cronometro = tiempo);
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => this.cronometro = tiempo);
   }
 
   tiempo_en_cpu() {
-    this.tiempo_ejecucion = 0
-    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+    this.timer = Observable.timer(1000, 1000).subscribe(tiempo => {
       this.tiempo_ejecucion = tiempo
-      if (this.tiempo_ejecucion == this.param.tiempo) {
+      console.log(this.tiempo_ejecucion)
+      if (this.tiempo_ejecucion == this.t_proceso) {
         this.detenerEjecucion()
       }
     });
@@ -76,10 +96,6 @@ export class RoundrobinComponent implements OnInit {
   }
 
   ejecutarProcesos() {
-    // this.interval = Observable.interval(1000).subscribe(x => {
-    //   this.postEjecutarProcesos()
-    // });
-    //this.interval=setInterval(function(){this.postEjecutar Procesos();},3000);
     this.postEjecutarProcesos()
   }
 
@@ -97,35 +113,26 @@ export class RoundrobinComponent implements OnInit {
 
   detenerEjecucion() {
     console.log("Numero de procesos en cola %i", this.cont);
-    // if (this.cont == 1){
-    //   console.log("Funciona el IF");
-    // }
-    //this.terminado = this.ejecucion
     if (this.cont >= 1) {
       this.listarTerminados()
       this.ejecutarProcesos()
+      this.timer.unsubscribe()
     } else {
-      this.timer.unsubscribe();
+      this.timer.unsubscribe()
       this.listarTerminados()
       this.listarEjecucion()
 
       console.log("Proceso Terminado")
     }
-
-
-
-    // while(this.tiempo_ejecucion != this.param.tiempo){
-    //   console.log("COMPONENTE: PROCESO EJECUCION")
-    // }
-    // if (this.estado == 'terminado') {
-    //   this.interval.unsubscribe();
-    // }
   }
 
   listarEjecucion() {
     this.roundRobinService.getInfoEjecucion()
       .then(data => {
-        this.ejecucion = data;
+        this.ejecucion = data
+        if (data.length > 0) {
+          this.t_proceso = data[0].tiempo
+        }
       })
   }
 
@@ -143,7 +150,7 @@ export class RoundrobinComponent implements OnInit {
 
   listarTerminados() {
     this.roundRobinService.getListaTerminados()
-    .then(data => {this.terminado = data})
+      .then(data => { this.terminado = data })
   }
 
   postCrearRecurso() {

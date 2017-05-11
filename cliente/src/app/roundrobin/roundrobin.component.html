@@ -31,13 +31,13 @@
             <div class="row control-group">
                 <div class="form-group col-xs-12">
                     <label for="tiempo">Tiempo</label>
-                    <input type="number" class="form-control" placeholder="Tiempo" id="tiempo" required [(ngModel)]="param.tiempo" name="tiempo">
+                    <input type="number" class="form-control" placeholder="Tiempo" id="tiempo" required [(ngModel)]="param.tiempo" (ngModelChange)="calcularQuantum()" name="tiempo">
                 </div>
             </div>
             <div class="row control-group">
                 <div class="form-group col-xs-12">
                     <label for="quantum">Quántum</label>
-                    <input type="number" class="form-control" placeholder="param.quantum" id="prior" required disabled [(ngModel)]="param.quantum" name="prior">
+                    <input type="number" class="form-control" placeholder="Quántum" id="prior" required disabled [(ngModel)]="param.quantum" name="quantum">
                     <!--<input type="number" class="form-control" placeholder="Prioridad" id="prior" required [(ngModel)]="param.prior" name="prior">-->
                 </div>
             </div>
@@ -69,7 +69,6 @@
                                 <th>Tiempo</th>
                                 <th>Recurso</th>
                                 <th>Quántum</th>
-                                <th>Procesado</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,8 +76,7 @@
                                 <td>{{item.nombre}}</td>
                                 <td>{{item.tiempo - tiempo_ejecucion}}</td>
                                 <td>{{item.recurso}}</td>
-                                <td>{{item.quantum}}</td>
-                                <td>{{(tiempo_ejecucion*100)/item.tiempo}}%</td>
+                                <td>{{item.quantum - tiempo_ejecucion}}</td>
                             </tr>
                         </tbody>
                     </table>
