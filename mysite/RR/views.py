@@ -3,25 +3,26 @@ import datetime
 import time
 import threading as th
 import Queue as q
+from .models import *
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 
 
-cola_int = q.PriorityQueue()
-retorno = "inicio"
-# respuesta = []
-# LISTAS DE PROCESOS
-listos = []
-suspendidos = []
-bloqueados = []
-ejecutados = []
-terminados = []
+# COLAS DE PROCESOS
+listos = Cola()
+suspendidos = Cola()
+bloqueados = Cola()
+ejecutados_p1 = Cola()
+ejecutados_p2 = Cola()
+ejecutados_p3 = Cola()
+terminados = Cola()
 estado = ''
+
 # LISTA DE RECURSOS
 recursos = []
 disponibles = []
 en_uso = []
 
-cola_hilos = q.Queue()
+cola_hilos = Cola()
 
 
 def round_robin(request):
@@ -31,22 +32,17 @@ def round_robin(request):
 
     if request.method == 'GET':
         try:
-            # global respuesta
-            # t = th.Thread(target=proceso, args=(i + 1,))
             respuesta = []
-            # threads.append(t)
-            # respuesta.append(context)
-            # t.start()
 
-            for cell in listos:
-                cola_int.put((cell['quantum'], cell))
-
-            while not cola_int.empty():
-                respuesta.append(cola_int.get()[1])
+            # for cell in listos:
+            #     cola_int.put((cell['quantum'], cell))
+            index = listos.cab
+            while index is not None:
+                respuesta.append(index.info)
+                index = index.sig
         except:
             return HttpResponseBadRequest('Bad request')
         print "METHOD GET"
-        listos = respuesta
         return JsonResponse(respuesta, safe=False)
     else:
         try:
@@ -67,10 +63,12 @@ def round_robin(request):
             context['recurso'] = recurso
             context['procesador'] = procesador
 
+            proceso = Nodo()
+            proceso.info = context
             # cola.put((prior, context))
             # print list(cola.queue)
 
-            listos.append(context)
+            listos.push(proceso)
             crearHilo(context['nombre'], context['tiempo'],
                       context['recurso'], context['procesador'], context['quantum'])
             return HttpResponse("Success!")
@@ -92,14 +90,20 @@ def crearHilo(nombre, tiempo, recurso, procesador, quantum):
     print "Creando Hilo " + nombre
 
     if procesador == 1:
-        cola_hilos.put(th.Thread(target=procesador_1,
-                                 name=nombre, args=(tiempo, quantum, recurso,)))
+        hilo = Nodo()
+        hilo.info = th.Thread(target=procesador_1,
+                              name=nombre, args=(tiempo, quantum, recurso,))
+        cola_hilos.push(hilo)
     elif procesador == 2:
-        cola_hilos.put(th.Thread(target=procesador_2,
-                                 name=nombre, args=(tiempo, quantum, recurso,)))
+        hilo = Nodo()
+        hilo.info = th.Thread(target=procesador_2,
+                              name=nombre, args=(tiempo, quantum, recurso,))
+        cola_hilos.push(hilo)
     else:
-        cola_hilos.put(th.Thread(target=procesador_3,
-                                 name=nombre, args=(tiempo, quantum, recurso,)))
+        hilo = Nodo()
+        hilo.info = th.Thread(target=procesador_3,
+                              name=nombre, args=(tiempo, quantum, recurso,))
+        cola_hilos.push(hilo)
 
 
 def ejecutarHilos(request):
@@ -107,18 +111,16 @@ def ejecutarHilos(request):
         try:
             print "EJECUTANDO HILOS"
             global cola_hilos
-            global ejecutados
+            global ejecutados_p1
             global listos
-            
+
             # ejecutados = []
-            hilo = cola_hilos.get()
-            aux = listos
-            aux.reverse()
+            hilo = cola_hilos.pop()
             # listos.reverse
-            ejecutados.append(aux.pop())
-            print ejecutados[0]['nombre']
+            ejecutados_p1.push(listos.pop())
+            print ejecutados_p1.cab.info['nombre']
             # listos.reverse()
-            hilo.start()
+            hilo.info.start()
 
             return HttpResponse("Ejecutando")
         except:
@@ -156,9 +158,9 @@ def manejoRecursos(request):
 def listarEjecutados(request):
     if request.method == 'GET':
         try:
-            global ejecutados
-            print "[ListarEjecutados]" + str(ejecutados)
-            return JsonResponse(ejecutados, safe=False)
+            global ejecutados_p1
+            print "[ListarEjecutados]" + str(ejecutados_p1.cab.info)
+            return JsonResponse(ejecutados_p1.cab.info, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
 
@@ -181,8 +183,16 @@ def listarTerminados(request):
     if request.method == 'GET':
         try:
             global terminados
-            print "LISTA TERMINADOS" + str(terminados)
-            return JsonResponse(terminados, safe=False)
+            index = terminados.cab
+            respuesta = []
+            while index is None:
+                print "Esperando terminacion Hilo"
+
+            while index is not None:
+                respuesta.append(index.info)
+                index = index.sig
+            print "LISTA TERMINADOS" + str(terminados.cab.info)
+            return JsonResponse(respuesta, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
 
@@ -193,7 +203,7 @@ def procesador_1(tiempo, quantum, recurso):
     global en_uso
 
     # COLAS
-    global ejecutados
+    global ejecutados_p1
     global suspendidos
     global bloqueados
     global terminados
@@ -215,10 +225,8 @@ def procesador_1(tiempo, quantum, recurso):
     seg = 0
     t_restante = 0
     while seg < tiempo:
-        print str(seg) + " " + estado
-
         if estado == 'suspendido':
-            suspendidos.append(ejecutados.pop())
+            suspendidos.push(ejecutados_p1.pop())
             print "[PROCESADOR 1] Esperando..."
             while estado == 'suspendido':
                 evento.wait()
@@ -227,7 +235,7 @@ def procesador_1(tiempo, quantum, recurso):
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
-    terminados.append(ejecutados.pop())
+    terminados.push(ejecutados_p1.pop())
     #ejecutados[1] = None
     # print terminados
     print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO"
