@@ -68,7 +68,6 @@ export class RoundrobinComponent implements OnInit {
     } else {
       for (let item of this.listos) {
         quantum += item.tiempo
-        console.log(quantum)
       }
       quantum = Math.round(quantum / this.cont)
       if (this.param.tiempo >= quantum) {
@@ -88,15 +87,30 @@ export class RoundrobinComponent implements OnInit {
       this.tiempo_ejecucion = tiempo
       if (this.t_proceso <= this.t_quantum) {
         if (this.tiempo_ejecucion == this.t_proceso) {
-          console.log("Funciona")
           this.detenerEjecucion()
         }
       }
       else if (this.tiempo_ejecucion == this.t_quantum) {
         console.log("COMPONENTE: listando suspendidos")
-        this.listarSuspendido()
+        this.notificarSuspendido()
       }
     });
+  }
+
+  tiempo_en_suspendidos() {
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+      tiempo += 1
+      if (tiempo == 3) {
+        console.log("De suspendidos a Listos")
+        this.getInfoListos()
+        this.listarSuspendido()
+      }
+      if (tiempo == 6) {
+        timer.unsubscribe()
+        this.ejecutarProcesos()
+      }
+
+    })
   }
 
   postAgregarProceso() {
@@ -128,7 +142,6 @@ export class RoundrobinComponent implements OnInit {
       this.timer.unsubscribe()
       this.listarTerminados()
       this.listarEjecucion()
-
       console.log("Proceso Terminado")
     }
   }
@@ -149,8 +162,14 @@ export class RoundrobinComponent implements OnInit {
       .then(data => {
         this.suspendido = data
         this.timer.unsubscribe()
-        this.ejecutarProcesos()
-        this.listarEjecucion()
+      })
+  }
+
+  notificarSuspendido() {
+    this.roundRobinService.postNotificarSuspendido()
+      .then(() => {
+        this.listarSuspendido()
+        this.tiempo_en_suspendidos()
       })
   }
 

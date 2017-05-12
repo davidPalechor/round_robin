@@ -62,6 +62,7 @@ def round_robin(request):
             context['quantum'] = quant
             context['recurso'] = recurso
             context['procesador'] = procesador
+            context['estado'] = estado
 
             proceso = Nodo()
             proceso.info = context
@@ -115,12 +116,13 @@ def ejecutarHilos(request):
             global listos
 
             # ejecutados = []
-            hilo = cola_hilos.pop()
-            # listos.reverse
+
             ejecutados_p1.push(listos.pop())
             print ejecutados_p1.cab.info['nombre']
-            # listos.reverse()
-            hilo.info.start()
+            
+            if cola_hilos.cab is not None:
+                hilo = cola_hilos.pop()
+                hilo.info.start()
 
             return HttpResponse("Ejecutando")
         except:
@@ -159,22 +161,30 @@ def listarEjecutados(request):
     if request.method == 'GET':
         try:
             global ejecutados_p1
-            print "[ListarEjecutados]" + str(ejecutados_p1.cab.info)
-            return JsonResponse(ejecutados_p1.cab.info, safe=False)
+            respuesta = []
+            proceso = ejecutados_p1.cab
+            while proceso is not None:
+                respuesta.append(proceso.info)
+                proceso = proceso.sig
+            print "[ListarEjecutados]" + str(respuesta)
+            return JsonResponse(respuesta, safe=False)
         except:
-            return HttpResponseBadRequest("Error interno")
+            return HttpResponseBadRequest("No hay items para ejecutar")
 
 
 def listarSuspendidos(request):
     if request.method == 'GET':
         try:
             global suspendidos
-            global estado
-            estado = 'suspendido'
-            while suspendidos == []:
-                print "[ListarSuspendidos] Esperando Arreglo"
-            print "[ListarSuspendidos]" + str(suspendidos) + estado
-            return JsonResponse(suspendidos, safe=False)
+            respuesta = []
+            proceso = suspendidos.cab
+            
+            while proceso is not None:
+                respuesta.append(proceso.info)
+                proceso = proceso.sig
+
+            print "[ListarSuspendidos]" + str(respuesta)
+            return JsonResponse(respuesta, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
 
@@ -185,8 +195,6 @@ def listarTerminados(request):
             global terminados
             index = terminados.cab
             respuesta = []
-            while index is None:
-                print "Esperando terminacion Hilo"
 
             while index is not None:
                 respuesta.append(index.info)
@@ -195,6 +203,15 @@ def listarTerminados(request):
             return JsonResponse(respuesta, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
+
+def actualizarEstado(request):
+    if request.method == "POST":
+        try:
+            global ejecutados_p1
+            ejecutados_p1.cab.info['estado'] = "suspendido"
+            return HttpResponse("[SERV] Estado actualizado")
+        except:
+            return HttpResponseBadRequest("No se pudo actualizar")
 
 
 def procesador_1(tiempo, quantum, recurso):
@@ -207,8 +224,8 @@ def procesador_1(tiempo, quantum, recurso):
     global suspendidos
     global bloqueados
     global terminados
+    global listos
 
-    global estado
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
@@ -225,19 +242,26 @@ def procesador_1(tiempo, quantum, recurso):
     seg = 0
     t_restante = 0
     while seg < tiempo:
+        if ejecutados_p1.cab is not None:
+            estado = ejecutados_p1.cab.info['estado']  
+        else:
+            estado = 'ejecucion'
+            
         if estado == 'suspendido':
             suspendidos.push(ejecutados_p1.pop())
+            suspendidos.cab.info['tiempo'] -= seg
+            evento.wait(3)
             print "[PROCESADOR 1] Esperando..."
-            while estado == 'suspendido':
-                evento.wait()
-
+            listos.push(suspendidos.pop())
+            listos.cab.info['estado'] = 'ejecucion'
+        
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
     terminados.push(ejecutados_p1.pop())
     #ejecutados[1] = None
-    # print terminados
+    print terminados.cab.info
     print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO"
     return
 

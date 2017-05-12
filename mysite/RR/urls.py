@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^round_robin/lista_ejecutados/$', views.listarEjecutados),
     url(r'^round_robin/recursos/$', views.manejoRecursos),
     url(r'^round_robin/lista_terminados/$', views.listarTerminados),
-    url(r'^round_robin/lista_suspendidos/$', views.listarSuspendidos)
+    url(r'^round_robin/lista_suspendidos/$', views.listarSuspendidos),
+    url(r'^round_robin/notificar_suspendido/$', views.actualizarEstado)
     #url(r'^round_robin/lista_suspendidos/$', views.listarSuspendidos)
 ]

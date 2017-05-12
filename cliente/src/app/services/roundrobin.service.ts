@@ -11,6 +11,7 @@ export class RoundrobinService {
   private urlRecursos = 'http://localhost:8000/round_robin/recursos/'
   private urlGetSuspendidos = 'http://localhost:8000/round_robin/lista_suspendidos/'
   private urlGetTerminados = 'http://localhost:8000/round_robin/lista_terminados/'
+  private urlNotificarSuspendido = 'http://localhost:8000/round_robin/notificar_suspendido/'
 
   constructor(private http: Http) { }
 
@@ -21,18 +22,35 @@ export class RoundrobinService {
       .catch(this.handleError);
   }
 
-  getListaListos(){
+  getListaListos() {
     return this.http.get(this.urlGetListos)
-    .toPromise()
-    .then(response => response.json())
-    .catch(this.handleError);
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError);
   }
 
-  getListaTerminados(){
+  getListaTerminados() {
     return this.http.get(this.urlGetTerminados)
-    .toPromise()
-    .then(response => response.json())
-    .catch(this.handleError);
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError);
+  }
+
+  postNotificarSuspendido() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlNotificarSuspendido, options)
+      .toPromise()
+      .then(() => console.log("[Servicio]:Estado Notificado: suspendido"))
+      .catch(this.handleError)
+  }
+
+  getInfoSuspendido() {
+    return this.http.get(this.urlGetSuspendidos)
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError);
   }
 
   postAgregarProceso(attr: Object): Promise<any> {
@@ -62,27 +80,20 @@ export class RoundrobinService {
       .catch(this.handleError);
   }
 
-  getInfoSuspendido(){
-    return this.http.get(this.urlGetSuspendidos)
-    .toPromise()
-    .then(response => response.json())
-    .catch(this.handleError);
-  }
-
   postCrearRecurso(recurso: Object): Promise<any> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
     return this.http.post(this.urlRecursos, recurso, options)
-    .toPromise()
-    .then(() => console.log("Recurso: success!"))
+      .toPromise()
+      .then(() => console.log("Recurso: success!"))
   }
 
-  getRecursos(){
+  getRecursos() {
     return this.http.get(this.urlRecursos)
-    .toPromise()
-    .then(response =>response.json())
-    .catch(this.handleError);
+      .toPromise()
+      .then(response => response.json())
+      .catch(this.handleError);
   }
 
   private handleError(error: any) {
