@@ -267,13 +267,54 @@ def procesador_1(tiempo, quantum, recurso):
 
 
 def procesador_2(tiempo, quantum, recurso):
+    # RECURSOS
+    global disponibles
+    global en_uso
+
+    # COLAS
+    global ejecutados_p1
+    global suspendidos
+    global bloqueados
+    global terminados
+    global listos
+
+    # PROCESO ACTUAL
+    proceso = th.current_thread().getName()
+
+    if recurso in disponibles:
+        print "RECURSO DISBONIBLE, BLOQUEANDO..."
+        index = disponibles.index(recurso)
+        en_uso.append(disponibles.pop(index))
+        print en_uso
+
     evento = th.Event()
     inicio = time.time()
+    print "PROCESADOR 2: " + proceso
     fin = 1000000000
     seg = 0
-    while (fin - inicio) < tiempo:
-
+    t_restante = 0
+    while seg < tiempo:
+        if ejecutados_p1.cab is not None:
+            estado = ejecutados_p1.cab.info['estado']  
+        else:
+            estado = 'ejecucion'
+            
+        if estado == 'suspendido':
+            suspendidos.push(ejecutados_p1.pop())
+            suspendidos.cab.info['tiempo'] -= seg
+            evento.wait(3)
+            print "[PROCESADOR 2] Esperando..."
+            listos.push(suspendidos.pop())
+            listos.cab.info['estado'] = 'ejecucion'
+        
+        fin = time.time()
+        # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
+
+    terminados.push(ejecutados_p1.pop())
+    #ejecutados[1] = None
+    print terminados.cab.info
+    print "PROCESADOR 2: PROCESO " + proceso + " TERMINADO"
     return
 
 

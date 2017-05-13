@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RoundrobinService } from '../services/roundrobin.service';
 import { Observable } from 'rxjs/Rx';
 
@@ -18,10 +18,9 @@ export class RoundrobinComponent implements OnInit {
   private bloqueado = []
   private suspendido = []
   private terminado = []
+  private total_procesos = []
   private cont = 0
-  private interval
   private timer
-  private estado
   private items_recursos = []
 
   private tiempo_ejecucion = 0
@@ -43,16 +42,29 @@ export class RoundrobinComponent implements OnInit {
     procesador: 1,
     estado: 'ejecucion'
   }
+  // Propiedades del canvas
+  private context: CanvasRenderingContext2D
+  private estilo = "#000000"
+  private canvas
 
 
   constructor(private roundRobinService: RoundrobinService) { }
 
+
+  @ViewChild("gant_1") gant_p1
+
   ngOnInit() {
     this.cronometrar()
     this.getInfoListos()
-    this.getRecursos();
+    this.getRecursos()
   }
 
+  prepararCanvas() {
+    if (this.total_procesos.length > 0) {
+      this.canvas = this.gant_p1.nativeElement
+      this.context = this.canvas.getContext("2d");
+    }
+  }
   getInfoListos() {
     this.roundRobinService.getInfoListos()
       .then(data => {
@@ -83,6 +95,7 @@ export class RoundrobinComponent implements OnInit {
   }
 
   tiempo_en_cpu() {
+    this.estilo = "#00FF00"
     this.timer = Observable.timer(1000, 1000).subscribe(tiempo => {
       this.tiempo_ejecucion = tiempo
       if (this.t_proceso <= this.t_quantum) {
@@ -98,6 +111,7 @@ export class RoundrobinComponent implements OnInit {
   }
 
   tiempo_en_suspendidos() {
+    this.estilo = "#0000FF"
     let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
       tiempo += 1
       if (tiempo == 3) {
@@ -107,19 +121,37 @@ export class RoundrobinComponent implements OnInit {
       }
       if (tiempo == 6) {
         timer.unsubscribe()
-        this.ejecutarProcesos()
+        this.postEjecutarProcesos()
       }
 
     })
   }
 
+  tiempo_en_sistema() {
+
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+      tiempo += 1
+      this.context.fillStyle = this.estilo
+      this.context.fillRect(tiempo, 0, 1, 20)
+      if (this.listos.length == 0 && this.suspendido.length == 0 && this.ejecucion.length == 0) {
+        timer.unsubscribe()
+      }
+    })
+  }
+
   postAgregarProceso() {
     this.roundRobinService.postAgregarProceso(this.param)
-      .then(() => this.getInfoListos())
+      .then(() => {
+        this.getInfoListos()
+        this.total_procesos.push(this.param.nombre)
+      })
   }
 
   ejecutarProcesos() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.postEjecutarProcesos()
+    this.prepararCanvas()
+    this.tiempo_en_sistema()
   }
 
   postEjecutarProcesos() {
@@ -136,7 +168,7 @@ export class RoundrobinComponent implements OnInit {
     console.log("Numero de procesos en cola %i", this.cont);
     if (this.cont >= 1) {
       this.listarTerminados()
-      this.ejecutarProcesos()
+      this.postEjecutarProcesos()
       this.timer.unsubscribe()
     } else {
       this.timer.unsubscribe()
