@@ -12,6 +12,7 @@ export class RoundrobinService {
   private urlGetSuspendidos = 'http://localhost:8000/round_robin/lista_suspendidos/'
   private urlGetTerminados = 'http://localhost:8000/round_robin/lista_terminados/'
   private urlNotificarSuspendido = 'http://localhost:8000/round_robin/notificar_suspendido/'
+  private urlNotificarSuspendido_2 = 'http://localhost:8000/round_robin/notificar_suspendido_2/'
 
   constructor(private http: Http) { }
 
@@ -46,6 +47,15 @@ export class RoundrobinService {
       .catch(this.handleError)
   }
 
+  postNotificarSuspendido_2() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlNotificarSuspendido_2, options)
+      .toPromise()
+      .then(() => console.log("[Servicio Proc_2]:Estado Notificado: suspendido"))
+      .catch(this.handleError)
+  }
   getInfoSuspendido() {
     return this.http.get(this.urlGetSuspendidos)
       .toPromise()

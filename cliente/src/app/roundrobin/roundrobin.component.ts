@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { RoundrobinService } from '../services/roundrobin.service';
 import { Observable } from 'rxjs/Rx';
+import * as jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-roundrobin',
@@ -24,6 +25,10 @@ export class RoundrobinComponent implements OnInit {
   private t_proceso = 0
   private t_quantum = 0
   private tiempo_ejecucion = 0
+  private t_suspendido = 0
+  private t_bloqueado = 0
+  private t_total = 0
+  private t_cpu = 0
 
   //PROCESADOR 2
   private listos_2 = []
@@ -38,6 +43,8 @@ export class RoundrobinComponent implements OnInit {
   private t_proceso_2 = 0
   private t_quantum_2 = 0
   private tiempo_ejecucion_2 = 0
+  private t_total_2 = 0
+  private t_cpu_2 = 0
 
   private items_recursos = []
 
@@ -59,6 +66,10 @@ export class RoundrobinComponent implements OnInit {
     procesador: 1,
     estado: 'ejecucion'
   }
+
+  //Para Pausar o Reaundar
+  private isPausado = false
+
   // Propiedades del canvas
   private context: CanvasRenderingContext2D
   private estilo = "#000000"
@@ -71,14 +82,23 @@ export class RoundrobinComponent implements OnInit {
 
   constructor(private roundRobinService: RoundrobinService) { }
 
-
+  // ||-----------------------------OPERACIONES GLOBALES -------------||
   @ViewChild("gant_1") gant_p1
   @ViewChild("gant_2") gant_p2
   @ViewChild("gant_3") gant_p3
 
   ngOnInit() {
+    this.prepararColas()
+    // this.getInfoListos()
+    // this.getRecursos()
+  }
+
+  prepararColas() {
     this.getInfoListos()
     this.getRecursos()
+    // this.listarEjecucion()
+    this.listarSuspendido()
+    this.listarTerminados()
   }
 
   prepararCanvas() {
@@ -94,96 +114,7 @@ export class RoundrobinComponent implements OnInit {
       this.context_2.clearRect(0, 0, this.canvas_2.width, this.canvas_2.height)
     }
   }
-  getInfoListos() {
-    this.roundRobinService.getInfoListos()
-      .then(data => {
-        this.listos = data[0]
-        this.cont = data[0].length
 
-        this.listos_2 = data[1]
-        this.cont_2 = data[1].length
-      })
-  }
-
-  cronometrar() {
-    let timer = Observable.timer(1000, 1000).subscribe(tiempo => this.cronometro = tiempo);
-  }
-
-  tiempo_en_cpu_1() {
-    this.estilo = "#00FF00"
-    this.timer = Observable.timer(1000, 1000).subscribe(tiempo => {
-      this.tiempo_ejecucion = tiempo
-      if (this.t_proceso <= this.t_quantum) {
-        if (this.tiempo_ejecucion == this.t_proceso) {
-          console.log("Terminando ejecucion")
-          this.detenerEjecucion()
-        }
-      }
-      else if (this.tiempo_ejecucion == this.t_quantum) {
-        console.log("COMPONENTE: listando suspendidos")
-        this.notificarSuspendido()
-      }
-    });
-  }
-
-  tiempo_en_cpu_2() {
-    this.estilo_2 = "#00FF00"
-    this.timer_2 = Observable.timer(1000, 1000).subscribe(tiempo => {
-      this.tiempo_ejecucion_2 = tiempo
-      if (this.t_proceso_2 <= this.t_quantum_2) {
-        if (this.tiempo_ejecucion_2 == this.t_proceso_2) {
-          console.log("PROCESADOR 2: Terminando ejecucion")
-          this.detenerEjecucion_2()
-        }
-      }
-      else if (this.tiempo_ejecucion_2 == this.t_quantum_2) {
-        console.log("COMPONENTE: listando suspendidos")
-        this.notificarSuspendido()
-      }
-    });
-  }
-
-  tiempo_en_suspendidos() {
-    this.estilo = "#0000FF"
-    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
-      tiempo += 1
-      if (tiempo == 3) {
-        console.log("De suspendidos a Listos")
-        this.getInfoListos()
-        this.listarSuspendido()
-        this.listarEjecucion()
-      }
-      if (tiempo == 6) {
-        timer.unsubscribe()
-        this.postEjecutarProcesos()
-      }
-
-    })
-  }
-
-  tiempo_en_proc_1() {
-
-    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
-      tiempo += 1
-      this.context.fillStyle = this.estilo
-      this.context.fillRect(tiempo * 2, 0, 2, 20)
-      if (this.listos.length == 0 && this.suspendido.length == 0 && this.ejecucion.length == 0) {
-        timer.unsubscribe()
-      }
-    })
-  }
-
-  tiempo_en_proc_2() {
-
-    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
-      tiempo += 1
-      this.context_2.fillStyle = this.estilo_2
-      this.context_2.fillRect(tiempo * 2, 0, 2, 20)
-      if (this.listos_2.length == 0 && this.suspendido_2.length == 0 && this.ejecucion_2.length == 0) {
-        timer.unsubscribe()
-      }
-    })
-  }
 
   postAgregarProceso() {
     this.roundRobinService.postAgregarProceso(this.param)
@@ -191,6 +122,7 @@ export class RoundrobinComponent implements OnInit {
         this.getInfoListos()
         if (this.param.procesador == 1) {
           this.total_procesos.push(this.param.nombre)
+          // this.cont +=1
         }
         if (this.param.procesador == 2) {
           this.total_procesos_2.push(this.param.nombre)
@@ -211,63 +143,56 @@ export class RoundrobinComponent implements OnInit {
   }
 
   postEjecutarProcesos() {
-    //this.listarEjecucion()
+    this.listarEjecucion()
     this.roundRobinService.postEjecutarProcesos()
       .then(() => {
-        this.listarEjecucion()
+        // this.listarEjecucion()
         if (this.cont > 0) {
           this.tiempo_en_cpu_1()
         }
         if (this.cont_2 > 0) {
           this.tiempo_en_cpu_2()
         }
-        this.getInfoListos();
+        // this.getInfoListos();
       })
   }
 
-  detenerEjecucion() {
-    console.log("Numero de procesos en cola %i", this.cont);
-    if (this.cont >= 1) {
-      this.listarTerminados()
-      this.postEjecutarProcesos()
-      this.timer.unsubscribe()
-    } else {
-      this.timer.unsubscribe()
-      this.listarTerminados()
-      this.listarEjecucion()
-      console.log("Proceso Terminado")
-    }
-  }
-
-  detenerEjecucion_2() {
-    console.log("Numero de procesos en cola %i", this.cont);
-    if (this.cont_2 >= 1) {
-      this.listarTerminados()
-      this.postEjecutarProcesos()
-      this.timer_2.unsubscribe()
-    } else {
-      this.timer_2.unsubscribe()
-      this.listarTerminados()
-      this.listarEjecucion()
-      console.log("Proceso Terminado")
-    }
+  //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
+  getInfoListos() {
+    this.roundRobinService.getInfoListos()
+      .then(data => {
+        console.log("[COLA LISTOS] ", data[0])
+        this.listos = data[0]
+        this.cont = data[0].length
+        console.log("[COLA LISTOS] ", data[1])
+        this.listos_2 = data[1]
+        this.cont_2 = data[1].length
+      })
   }
 
   listarEjecucion() {
     this.roundRobinService.getInfoEjecucion()
       .then(data => {
-        console.log(data[1])
-        this.ejecucion = data[0]
-        if (data[0].length > 0) {
-          this.t_quantum = data[0][0].quantum
-          console.log(this.t_quantum)
-          this.t_proceso = data[0][0].tiempo
+        // this.ejecucion = data[0]
+
+        this.listos.reverse()
+        if (this.listos.length > 0) {
+          this.ejecucion.push(this.listos.pop())
         }
-        this.ejecucion_2 = data[1]
-        if (data[1].length > 0){
-          this.t_quantum_2 = data[1][0].quantum
-          console.log(this.t_quantum)
-          this.t_proceso_2 = data[1][0].tiempo
+        console.log("EJECUTANDOSE: ", this.ejecucion)
+        if (this.ejecucion.length > 0) {
+          this.t_quantum = this.ejecucion[0].quantum
+          this.t_proceso = this.ejecucion[0].tiempo
+        }
+
+        this.listos_2.reverse()
+        if (this.listos_2.length > 0) {
+          this.ejecucion_2.push(this.listos_2.pop())
+        }
+        console.log("EJECUTANDOSE: ", this.ejecucion)
+        if (this.ejecucion_2.length > 0) {
+          this.t_quantum_2 = this.ejecucion_2[0].quantum
+          this.t_proceso_2 = this.ejecucion_2[0].tiempo
         }
       })
   }
@@ -275,17 +200,10 @@ export class RoundrobinComponent implements OnInit {
   listarSuspendido() {
     this.roundRobinService.getInfoSuspendido()
       .then(data => {
+        // this.ejecucion
         this.suspendido = data[0]
-        this.suspendido_2 = data[1]
-        this.timer.unsubscribe()
-      })
-  }
-
-  notificarSuspendido() {
-    this.roundRobinService.postNotificarSuspendido()
-      .then(() => {
-        this.listarSuspendido()
-        this.tiempo_en_suspendidos()
+        // this.suspendido_2 = data[1]
+        // this.timer.unsubscribe()
       })
   }
 
@@ -314,7 +232,286 @@ export class RoundrobinComponent implements OnInit {
     this.roundRobinService.getRecursos()
       .then(data => {
         this.items_recursos = data
-        console.log(data);
       })
+  }
+
+  // ||---------------------------------------OPERACIONES------------------------||
+  // ||---------------------------------------PROCESADOR 1 ----------------------||
+
+  cronometrar() {
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => this.cronometro = tiempo);
+  }
+
+  tiempo_en_cpu_1() {
+    this.estilo = "#00FF00"
+    this.cont -= 1
+    this.timer = Observable.timer(0, 1000).subscribe(tiempo => {
+      this.tiempo_ejecucion = tiempo
+      this.t_total += 1
+      this.t_cpu += 1
+      this.ejecucion[0].tiempo -= 1;
+      this.ejecucion[0].quantum -= 1;
+      if (this.t_proceso <= this.t_quantum) {
+        if (this.tiempo_ejecucion == this.t_proceso) {
+          console.log("Terminando ejecucion")
+          this.detenerEjecucion()
+        }
+      }
+      else if (this.tiempo_ejecucion == this.t_quantum) {
+        console.log("COMPONENTE: listando suspendidos")
+        this.suspendido.push(this.ejecucion.pop())
+        // this.ejecucion.pop()
+
+        this.notificarSuspendido()
+        this.detenerEjecucion()
+      }
+    });
+  }
+
+  tiempo_en_suspendidos() {
+
+    this.estilo = "#0000FF"
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+      tiempo += 1
+      if (tiempo == 3) {
+        console.log("De suspendidos a Listos")
+        // if(this.suspendido.hasOwnProperty('tiempo')){
+        let quantum = this.calcularQuantum(this.listos, this.suspendido[0].tiempo)
+        // }
+        // this.listarSuspendido()
+        this.listos.push(this.suspendido.pop())
+        this.listos[0].quantum = quantum;
+        console.log(this.listos)
+        this.cont += 1;
+        // this.getInfoListos()
+        // this.listarSuspendido()
+        // this.listarEjecucion()
+      }
+      if (tiempo == 6) {
+        this.estilo == "#00FF00"
+        timer.unsubscribe()
+        // this.postEjecutarProcesos()
+        this.detenerEjecucion()
+      }
+
+    })
+  }
+
+  tiempo_en_proc_1() {
+
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+      tiempo += 1
+      this.context.fillStyle = this.estilo
+      this.context.fillRect(tiempo * 2, 0, 2, 20)
+      if (this.listos.length == 0 && this.suspendido.length == 0 && this.ejecucion.length == 0) {
+        timer.unsubscribe()
+      }
+    })
+  }
+
+  detenerEjecucion() {
+    console.log("Numero de procesos en cola %i", this.cont);
+    if (this.cont >= 1) {
+      // this.listarTerminados()
+      if (this.t_proceso <= this.t_quantum) {
+        this.terminado.push(this.ejecucion.pop())
+      }
+      this.postEjecutarProcesos()
+      this.timer.unsubscribe()
+    } else {
+      this.timer.unsubscribe()
+
+      console.log("[DETENER EJECUCION] ", this.ejecucion, this.suspendido)
+      if (this.suspendido.length == 0 && this.bloqueado.length == 0) {
+        this.terminado.push(this.ejecucion.pop())
+        console.log("Proceso Terminado")
+      }
+      // this.listarTerminados()
+      // this.listarEjecucion()
+    }
+  }
+
+  notificarSuspendido() {
+    this.roundRobinService.postNotificarSuspendido()
+      .then(() => {
+        // this.listarSuspendido()
+        this.tiempo_en_suspendidos()
+      })
+  }
+  // ||--------------------------------------------------------------------------------------||
+  // ||------------------------------------------PROCESADOR 2--------------------------------||
+  // ||--------------------------------------------------------------------------------------||
+
+  tiempo_en_cpu_2() {
+    this.estilo_2 = "#00FF00"
+    this.timer_2 = Observable.timer(1000, 1000).subscribe(tiempo => {
+      this.tiempo_ejecucion_2 = tiempo
+      this.t_cpu_2+=1
+      this.ejecucion_2[0].tiempo -= 1;
+      if (this.t_proceso_2 <= this.t_quantum_2) {
+        if (this.tiempo_ejecucion_2 == this.t_proceso_2) {
+          console.log("PROCESADOR 2: Terminando ejecucion")
+          this.detenerEjecucion_2()
+        }
+      }
+      else if (this.tiempo_ejecucion_2 == this.t_quantum_2) {
+        this.suspendido.push(this.ejecucion.pop())
+        // this.ejecucion.pop()
+        this.notificarSuspendido()
+        this.detenerEjecucion_2()
+      }
+    });
+  }
+
+
+  tiempo_en_proc_2() {
+
+    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+      tiempo += 1
+      this.context_2.fillStyle = this.estilo_2
+      this.context_2.fillRect(tiempo * 2, 0, 2, 20)
+      if (this.listos_2.length == 0 && this.suspendido_2.length == 0 && this.ejecucion_2.length == 0) {
+        timer.unsubscribe()
+      }
+    })
+  }
+
+
+  detenerEjecucion_2() {
+    console.log("Numero de procesos en cola %i", this.cont);
+    if (this.cont_2 >= 1) {
+      // this.listarTerminados()
+      if (this.t_proceso_2 <= this.t_quantum_2) {
+        this.terminado_2.push(this.ejecucion_2.pop())
+      }
+      this.postEjecutarProcesos()
+      this.timer_2.unsubscribe()
+    } else {
+      this.timer_2.unsubscribe()
+
+      console.log("[DETENER EJECUCION] ", this.ejecucion_2, this.suspendido_2)
+      if (this.suspendido_2.length == 0 && this.bloqueado_2.length == 0) {
+        this.terminado_2.push(this.ejecucion_2.pop())
+        console.log("Proceso Terminado")
+      }
+      // this.listarTerminados()
+      // this.listarEjecucion()
+    }
+  }
+
+  tiempo_en_suspendidos_2() {
+    
+    this.estilo_2 = "#0000FF"
+    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+      tiempo += 1
+      if (tiempo == 3) {
+        console.log("De suspendidos a Listos")
+        // if(this.suspendido.hasOwnProperty('tiempo')){
+        let quantum = this.calcularQuantum(this.listos_2, this.suspendido_2[0].tiempo)
+        // }
+        // this.listarSuspendido()
+        this.listos_2.push(this.suspendido_2.pop())
+        this.listos_2[0].quantum = quantum;
+        this.cont_2 += 1;
+        // this.getInfoListos()
+        // this.listarSuspendido()
+        // this.listarEjecucion()
+      }
+      if (tiempo == 6) {
+        this.estilo == "#00FF00"
+        timer.unsubscribe()
+        // this.postEjecutarProcesos()
+        this.detenerEjecucion_2()
+      }
+
+    })
+  }
+
+  notificarSuspendido_2() {
+    this.roundRobinService.postNotificarSuspendido_2()
+      .then(() => {
+        this.tiempo_en_suspendidos_2()
+      })
+  }
+
+  // ||---------------------------------------OTRAS OPERACIONES----------------------------||
+  simular() {
+    setTimeout(this.simular, 1000);
+
+    this.prepararColas()
+    if (!this.isPausado) {
+      if (this.ejecucion.length == 0) {
+        if (this.listos.length != 0) {
+          this.ejecutarProcesos()
+        }
+      }
+    }
+  }
+
+  calcularQuantum(cola, tiempo: number) {
+    let quantum = 0
+    let num = 0
+    if (cola.length == 0) {
+      quantum = tiempo
+    } else {
+      for (let item of cola) {
+        quantum += cola.tiempo;
+        num += 1;
+      }
+      quantum = Math.round(quantum / num)
+      if (tiempo >= quantum) {
+        quantum = Math.ceil(quantum * 2 / 3);
+      } else {
+        quantum = Math.ceil(tiempo * 2 / 3);
+      }
+    }
+    return quantum;
+  }
+  generarPDF() {
+
+    //VARIABLES MEDIDAS: PROCESADOR 1 
+    let prom_procesador = this.t_total / this.total_procesos.length;
+    let prom_cpu = this.t_cpu / this.total_procesos.length;
+    let rendimiento = prom_cpu / prom_procesador;
+
+    //VARIABLES MEDIDAS: PROCESADOR 2
+    let prom_procesador_2 = this.t_total / this.total_procesos_2.length;
+    let prom_cpu_2 = this.t_cpu_2 / this.total_procesos_2.length;
+    let rendimiento_2 = prom_cpu_2 / prom_procesador_2;
+
+    var document = new jsPDF();
+    // TITULO
+
+    document.setTextColor(105, 156, 175)
+    document.setFontSize(20)
+    document.text("ALGORITMO DE PLANIFICACIÓN ROUND ROBIN", 20, 20)
+
+    //CUERPO
+    document.setFontSize(16);
+    document.text('PROCESADOR 1', 20, 30);
+
+    document.setTextColor(0, 0, 0)
+    document.setFontSize(12);
+    document.text("Sumatoria de tiempos en procesador: " + this.t_total.toString() + " segundos", 20, 40)
+    document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu.toString() + " segundos", 20, 50)
+    document.text(20, 60, "Promedio de tiempos en procesador: " + prom_procesador.toString() + " segundos")
+    document.text(20, 70, "Promedio de tiempos en sección crítica: " + prom_cpu.toString() + " segundos")
+    document.text("Rendimiento: " + rendimiento * 100 + "%", 20, 80)
+    document.text("Total procesos: " + this.total_procesos.length.toString(), 20, 90)
+
+    document.setFontSize(16);
+    document.setTextColor(105, 156, 175)
+    document.text('PROCESADOR 2', 20, 100);
+
+    document.setTextColor(0, 0, 0)
+    document.setFontSize(12);
+    document.text("Tiempo en procesador: " + this.t_total_2.toString() + " segundos", 20, 110)
+    document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_2.toString() + " segundos", 20, 120)
+    document.text(20, 130, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
+    document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 140)
+    document.text("Total procesos: " + this.total_procesos_2.length.toString(), 20, 150)
+
+    //ARCHIVO
+    document.save('metricas.pdf')
   }
 }

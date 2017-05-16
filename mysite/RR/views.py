@@ -85,6 +85,7 @@ def round_robin(request):
             if int(procesador) == 2:
                 context['quantum'] = calcularQuantum(listos_p2, tiempo)
                 proceso.info = context
+                print "Proceso a Procesadro 2"
                 listos_p2.push(proceso)
 
             crearHilo(context['nombre'], context['tiempo'],
@@ -154,8 +155,6 @@ def ejecutarHilos(request):
 
             if listos.cab is not None:
                 ejecutados_p1.push(listos.pop())
-
-                print ejecutados_p1.cab.info
                 ejecutados_p1.cab.info['estado'] = "ejecucion"
 
             if listos_p2.cab is not None:
@@ -269,10 +268,23 @@ def actualizarEstado(request):
     if request.method == "POST":
         try:
             global ejecutados_p1
-            ejecutados_p1.cab.info['estado'] = "suspendido"
+            global ejecutados_p2
+            if ejecutados_p1.cab is not None:
+                ejecutados_p1.cab.info['estado'] = "suspendido"
             return HttpResponse("[SERV] Estado actualizado")
         except:
             return HttpResponseBadRequest("No se pudo actualizar")
+
+def actualizarEstado_2(request):
+    if request.method == "POST":
+        try:
+            global ejecutados_p2
+            if ejecutados_p2.cab is not None:
+                ejecutados_p2.cab.info['estado'] = "suspendido"
+            return HttpResponse("[SERV] Estado actualizado")
+        except:
+            return HttpResponseBadRequest("No se pudo actualizar")
+
 
 
 def procesador_1(tiempo, quantum, recurso):
@@ -290,11 +302,17 @@ def procesador_1(tiempo, quantum, recurso):
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
+    cv = th.Condition()
     if recurso in disponibles:
+        cv.acquire()
         print "RECURSO DISBONIBLE, BLOQUEANDO..."
         index = disponibles.index(recurso)
         en_uso.append(disponibles.pop(index))
         print en_uso
+    else:
+        cv.acquire()
+        while recurso not in disponibles:
+            cv.wait()
 
     evento = th.Event()
     inicio = time.time()
@@ -312,20 +330,22 @@ def procesador_1(tiempo, quantum, recurso):
             suspendidos.push(ejecutados_p1.pop())
             suspendidos.cab.info['tiempo'] -= seg
             print "[PROCESADOR 1] Esperando..."
+            quantum = calcularQuantum(listos,suspendidos.cab.info['tiempo'])
             evento.wait(3)
             listos.push(suspendidos.pop())
             listos.cab.info['estado'] = 'listo'
+            listos.cab.info['quantum'] = quantum
             estado = 'listo'
-
-        while ejecutados_p1.cab is None:
-            print "Esperando "
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
     terminados.push(ejecutados_p1.pop())
+    disponibles.append(en_uso.pop())
+    cv.notify()
+    cv.release()
     #ejecutados[1] = None
-    print terminados.cab.info
+    # print terminados.cab.info
     print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO"
     return
 
@@ -345,11 +365,17 @@ def procesador_2(tiempo, quantum, recurso):
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
+    cv = th.Condition()
     if recurso in disponibles:
+        cv.acquire()
         print "RECURSO DISBONIBLE, BLOQUEANDO..."
         index = disponibles.index(recurso)
         en_uso.append(disponibles.pop(index))
         print en_uso
+    else:
+        cv.acquire()
+        while recurso not in disponibles:
+            cv.wait()
 
     evento = th.Event()
     inicio = time.time()

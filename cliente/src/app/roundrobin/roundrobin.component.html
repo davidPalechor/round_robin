@@ -3,7 +3,7 @@
 
 <!-- FORMULARIOS PARA RECURSOS Y PROCESOS-->
 <div class="row">
-    <div class="col-md-4 col-sm-4">
+    <div class="col-md-4 col-sm-4 formulario">
         <form (ngSubmit)="postCrearRecurso()">
             <div class="row control-group">
                 <div class="form-group col-xs-12">
@@ -47,20 +47,23 @@
             <button class="btn btn-success" [disabled]="!agregarProceso.form.valid"> Agregar Proceso</button>
         </form>
         <!--FIN FORMULARIO -->
-    </div>
-    <!--CPU COLAS Y PROCESADORES-->
-    <div class="col-md-8">
         <div class="row">
             <div class="col-xs-4">
-                <button href="#procesador_2">Procesador 2</button>
+                <button (click)="generarPDF()" class='btn btn-success'>Generar PDF</button>
             </div>
             <div class="col-xs-4">
-
+                <div *ngIf="listos.length>0 || listos_2.length>0">
+                    <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
+                    <button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
+                </div>
             </div>
             <div class="col-xs-4">
 
             </div>
         </div>
+    </div>
+    <!--CPU COLAS Y PROCESADORES-->
+    <div class="col-md-8 col-md-offset-4">
         <div class="row">
             <div class="col-xs-offset-5">
                 <div *ngIf="listos.length>0 || listos_2.length>0">
@@ -72,7 +75,7 @@
         <!--COLAS SUSPENDIDOS Y BLOQUEADOS-->
         <div class="row">
             <h2>Procesador 1</h2>
-            <h4>CPU</h4>
+            <h4>CPU {{t_total}}</h4>
             <div class="col-xs-12 centered" *ngIf="ejecucion.length > 0">
                 <div class="cpu">
                     <table class=" table table-striped">
@@ -85,11 +88,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of ejecucion">
-                                <td>{{item.nombre}}</td>
-                                <td>{{item.tiempo - tiempo_ejecucion}}</td>
-                                <td>{{item.recurso}}</td>
-                                <td>{{item.quantum - tiempo_ejecucion}}</td>
+                            <tr>
+                                <td>{{ejecucion[0].nombre}}</td>
+                                <td>{{ejecucion[0].tiempo}}</td>
+                                <td>{{ejecucion[0].recurso}}</td>
+                                <td>{{ejecucion[0].quantum}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -166,6 +169,10 @@
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
                                     <td>{{item.quantum}}</td>
+                                    <!--<td>{{item}}</td>
+                                    <td>{{item}}</td>
+                                    <td>{{item}}</td>
+                                    <td>{{item}}</td>-->
                                 </tr>
                             </tbody>
                         </table>
@@ -197,7 +204,7 @@
                 </div>
             </div>
         </div>
-        <!--PROCESADOR 2-->
+        <!-- ......................................PROCESADOR 2...................................-->
         <div class="row" id="procesador_2">
 
             <h2>Procesador 2</h2>
@@ -220,12 +227,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of ejecucion_2">
-                                <td>{{item.nombre}}</td>
-                                <td>{{item.tiempo - tiempo_ejecucion_2}}</td>
-                                <td>{{item.recurso}}</td>
-                                <td>{{item.quantum - tiempo_ejecucion_2}}</td>
-                            </tr>
+                            <td>{{ejecucion_2[0].nombre}}</td>
+                            <td>{{ejecucion_2[0].tiempo - tiempo_ejecucion_2}}</td>
+                            <td>{{ejecucion_2[0].recurso}}</td>
+                            <td>{{ejecucion_2[0].quantum - tiempo_ejecucion_2}}</td>
                         </tbody>
                     </table>
                 </div>
@@ -324,5 +329,130 @@
                     </div>
                 </div>
             </div>
+            <!-- ..................................PROCESADOR 3.................................-->
+            <div class="row" id="procesador_2">
+
+                <h2>Procesador 3</h2>
+                <h4>CPU</h4>
+                <div class="row">
+                    <div class="col-xs-12" *ngIf="total_procesos_3.length > 0">
+                        <h3>Diagrama de Gantt</h3>
+                        <canvas #gant_2 height="20px"></canvas>
+                    </div>
+                </div>
+                <div class="col-xs-12 centered" *ngIf="ejecucion_3.length > 0">
+                    <div class="cpu">
+                        <table class=" table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Quántum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td>{{ejecucion_2[0].nombre}}</td>
+                                <td>{{ejecucion_2[0].tiempo - tiempo_ejecucion_2}}</td>
+                                <td>{{ejecucion_2[0].recurso}}</td>
+                                <td>{{ejecucion_2[0].quantum - tiempo_ejecucion_2}}</td>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 centered">
+                    <h4>Listos</h4>
+                    <div class="colas">
+                        <table class=" table table-striped" *ngIf="listos_3.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Quántum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of listos_3">
+                                    <td>{{item.nombre}}</td>
+                                    <td>{{item.tiempo}}</td>
+                                    <td>{{item.recurso}}</td>
+                                    <td>{{item.quantum}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <h4>Terminados</h4>
+                    <div class="colas">
+                        <table class=" table table-striped" *ngIf="terminado_3.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Recurso</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of terminado_3">
+                                    <td>{{item.nombre}}</td>
+                                    <td>{{item.recurso}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4>Suspendidos</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="suspendido_3.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Quántum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of suspendido_3">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.quantum}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <h4>Bloqueados</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="bloqueado_3.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Quántum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of bloqueado_3">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.quantum}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
