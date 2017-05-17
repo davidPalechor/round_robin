@@ -46,6 +46,22 @@ export class RoundrobinComponent implements OnInit {
   private t_total_2 = 0
   private t_cpu_2 = 0
 
+//PROCESADOR 3
+  private listos_3 = []
+  private ejecucion_3 = []
+  private bloqueado_3 = []
+  private suspendido_3 = []
+  private terminado_3 = []
+  private total_procesos_3 = []
+  private cont_3 = 0
+  private timer_3
+
+  private t_proceso_3 = 0
+  private t_quantum_3 = 0
+  private tiempo_ejecucion_3 = 0
+  private t_total_3 = 0
+  private t_cpu_3 = 0
+
   private items_recursos = []
 
   private cronometro = 0
@@ -57,6 +73,9 @@ export class RoundrobinComponent implements OnInit {
   private recurso = {
     value: null
   }
+
+  private recurso_disponible = []
+  private recurso_en_uso = []
 
   private param = {
     tiempo: null,
@@ -157,6 +176,22 @@ export class RoundrobinComponent implements OnInit {
       })
   }
 
+
+  startProcesador_1(recurso){
+    if (this.ejecucion.length == 0){
+      if(this.cont > 0){
+        this.ejecucion.push(this.listos.pop())
+        if(recurso.disponible == true){
+          var index = this.recurso_disponible.indexOf(recurso)
+          var bloq;
+          if(index > -1){
+            bloq = this.recurso_disponible.splice(index, 1);
+          }
+          this.recurso_en_uso.push(bloq);
+        }
+      }
+    }
+  }
   //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
   getInfoListos() {
     this.roundRobinService.getInfoListos()
@@ -232,6 +267,7 @@ export class RoundrobinComponent implements OnInit {
     this.roundRobinService.getRecursos()
       .then(data => {
         this.items_recursos = data
+        this.recurso_disponible = data
       })
   }
 

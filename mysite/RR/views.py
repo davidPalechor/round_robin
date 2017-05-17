@@ -336,6 +336,8 @@ def procesador_1(tiempo, quantum, recurso):
             listos.cab.info['estado'] = 'listo'
             listos.cab.info['quantum'] = quantum
             estado = 'listo'
+
+            ejecutados_p1.push(listos.pop())
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
