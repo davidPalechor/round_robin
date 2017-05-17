@@ -46,7 +46,7 @@ export class RoundrobinComponent implements OnInit {
   private t_total_2 = 0
   private t_cpu_2 = 0
 
-//PROCESADOR 3
+  //PROCESADOR 3
   private listos_3 = []
   private ejecucion_3 = []
   private bloqueado_3 = []
@@ -149,10 +149,11 @@ export class RoundrobinComponent implements OnInit {
       })
   }
 
-  ejecutarProcesos() {
+  ejecutarProcesos(recurso) {
     this.prepararCanvas()
     this.postEjecutarProcesos()
     if (this.listos.length > 0) {
+      this.startProcesador_1(recurso)
       this.tiempo_en_proc_1()
     }
     if (this.listos_2.length > 0) {
@@ -162,35 +163,52 @@ export class RoundrobinComponent implements OnInit {
   }
 
   postEjecutarProcesos() {
-    this.listarEjecucion()
+    // this.listarEjecucion()
     this.roundRobinService.postEjecutarProcesos()
-      .then(() => {
-        // this.listarEjecucion()
-        if (this.cont > 0) {
-          this.tiempo_en_cpu_1()
-        }
-        if (this.cont_2 > 0) {
-          this.tiempo_en_cpu_2()
-        }
-        // this.getInfoListos();
-      })
+    // .then(() => {
+    //   // this.listarEjecucion()
+    //   if (this.cont > 0) {
+    //     this.tiempo_en_cpu_1()
+    //   }
+    //   if (this.cont_2 > 0) {
+    //     this.tiempo_en_cpu_2()
+    //   }
+    //   // this.getInfoListos();
+    // })
   }
 
+  startProcesador_1(recurso) {
+    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+      this.tiempo_ejecucion = tiempo
+      if (this.listos.length == 0 && this.suspendido.length == 0 && this.ejecucion.length == 0) {
+        timer.unsubscribe()
+      }
 
-  startProcesador_1(recurso){
-    if (this.ejecucion.length == 0){
-      if(this.cont > 0){
-        this.ejecucion.push(this.listos.pop())
-        if(recurso.disponible == true){
+      if (this.ejecucion.length == 0) {
+        if (this.cont > 0) {
+          this.ejecucion.push(this.listos.shift())
+          this.cont -= 1;
           var index = this.recurso_disponible.indexOf(recurso)
           var bloq;
-          if(index > -1){
-            bloq = this.recurso_disponible.splice(index, 1);
+          if (index > -1) {
+            bloq = this.recurso_disponible.splice(index, 1); //Probar si el recurso está disponible
+            if (bloq == undefined) {
+              this.bloqueado.push(this.ejecucion.pop())
+            }
+            this.recurso_en_uso.push(bloq);
+          } else {
+            this.bloqueado.push(this.ejecucion.shift())
           }
-          this.recurso_en_uso.push(bloq);
+        }
+      } else {
+        this.estilo = "#00FF00"
+        if (this.t_proceso <= this.t_quantum) {
+          if (this.tiempo_ejecucion == this.t_proceso) {
+            this.terminado.push(this.ejecucion.pop())
+          }
         }
       }
-    }
+    })
   }
   //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
   getInfoListos() {
@@ -199,6 +217,8 @@ export class RoundrobinComponent implements OnInit {
         console.log("[COLA LISTOS] ", data[0])
         this.listos = data[0]
         this.cont = data[0].length
+        this.t_proceso = data[0].tiempo
+        this.t_quantum = data[0].quantum
         console.log("[COLA LISTOS] ", data[1])
         this.listos_2 = data[1]
         this.cont_2 = data[1].length
@@ -295,7 +315,7 @@ export class RoundrobinComponent implements OnInit {
       }
       else if (this.tiempo_ejecucion == this.t_quantum) {
         console.log("COMPONENTE: listando suspendidos")
-        this.suspendido.push(this.ejecucion.pop())
+        this.suspendido.push(this.ejecucion.shift())
         // this.ejecucion.pop()
 
         this.notificarSuspendido()
@@ -335,7 +355,7 @@ export class RoundrobinComponent implements OnInit {
 
   tiempo_en_proc_1() {
 
-    let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
       tiempo += 1
       this.context.fillStyle = this.estilo
       this.context.fillRect(tiempo * 2, 0, 2, 20)
@@ -382,7 +402,7 @@ export class RoundrobinComponent implements OnInit {
     this.estilo_2 = "#00FF00"
     this.timer_2 = Observable.timer(1000, 1000).subscribe(tiempo => {
       this.tiempo_ejecucion_2 = tiempo
-      this.t_cpu_2+=1
+      this.t_cpu_2 += 1
       this.ejecucion_2[0].tiempo -= 1;
       if (this.t_proceso_2 <= this.t_quantum_2) {
         if (this.tiempo_ejecucion_2 == this.t_proceso_2) {
@@ -436,7 +456,7 @@ export class RoundrobinComponent implements OnInit {
   }
 
   tiempo_en_suspendidos_2() {
-    
+
     this.estilo_2 = "#0000FF"
     let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
       tiempo += 1
@@ -478,7 +498,7 @@ export class RoundrobinComponent implements OnInit {
     if (!this.isPausado) {
       if (this.ejecucion.length == 0) {
         if (this.listos.length != 0) {
-          this.ejecutarProcesos()
+          // this.ejecutarProcesos()
         }
       }
     }
