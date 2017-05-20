@@ -199,7 +199,7 @@ export class RoundrobinComponent implements OnInit {
       if (this.listos.length == 0 && this.suspendido.length == 0 && this.ejecucion.length == 0) {
         clearInterval(timer);
       }
-
+      console.log(this.tiempo_simulacion)
       if (this.ejecucion.length == 0) {
         if (this.cont > 0) {
           this.postEjecutarProcesos()
@@ -240,7 +240,7 @@ export class RoundrobinComponent implements OnInit {
           }
         }
       }
-      },1000*this.tiempo_simulacion)
+      },1000*1/(this.tiempo_simulacion))
   }
 
   startProcesador_2() {
