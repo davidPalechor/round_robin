@@ -43,6 +43,8 @@ export class RoundrobinComponent implements OnInit {
   private t_proceso_2 = 0
   private t_quantum_2 = 0
   private tiempo_ejecucion_2 = 0
+  private t_suspendido_2 = 0
+  private t_bloqueado_2 = 0
   private t_total_2 = 0
   private t_cpu_2 = 0
 
@@ -62,6 +64,7 @@ export class RoundrobinComponent implements OnInit {
   private t_total_3 = 0
   private t_cpu_3 = 0
 
+// OTRAS VARIABLES
   private items_recursos = []
 
   private cronometro = 0
@@ -91,11 +94,11 @@ export class RoundrobinComponent implements OnInit {
 
   // Propiedades del canvas
   private context: CanvasRenderingContext2D
-  private estilo = "#000000"
+  private estilo = "#FFFFFF"
   private canvas
 
   private context_2: CanvasRenderingContext2D
-  private estilo_2 = "#000000"
+  private estilo_2 = "#FFFFFF"
   private canvas_2
 
 
@@ -149,14 +152,15 @@ export class RoundrobinComponent implements OnInit {
       })
   }
 
-  ejecutarProcesos(recurso) {
+  ejecutarProcesos() {
     this.prepararCanvas()
-    this.postEjecutarProcesos()
+    // this.postEjecutarProcesos()
     if (this.listos.length > 0) {
-      this.startProcesador_1(recurso)
+      this.startProcesador_1()
       this.tiempo_en_proc_1()
     }
     if (this.listos_2.length > 0) {
+      this.startProcesador_2()
       this.tiempo_en_proc_2()
     }
     //this.tiempo_en_proc_2()
@@ -177,48 +181,127 @@ export class RoundrobinComponent implements OnInit {
     // })
   }
 
-  startProcesador_1(recurso) {
-    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
-      this.tiempo_ejecucion = tiempo
+  indexRecurso(lista, elemento) {
+    let i = 0
+
+    while (elemento != lista[i].recurso) {
+      i += 1
+      if (i >= lista.length) {
+        i = -1;
+        break;
+      }
+    }
+    return i;
+  }
+
+  startProcesador_1() {
+    this.t_suspendido = 0;
+    this.t_bloqueado = 0
+      let timer = setInterval(() =>{
       if (this.listos.length == 0 && this.suspendido.length == 0 && this.ejecucion.length == 0) {
-        timer.unsubscribe()
+        clearInterval(timer);
       }
 
       if (this.ejecucion.length == 0) {
         if (this.cont > 0) {
+          this.postEjecutarProcesos()
           this.ejecucion.push(this.listos.shift())
           this.cont -= 1;
-          var index = this.recurso_disponible.indexOf(recurso)
+          var index = this.indexRecurso(this.recurso_disponible, this.ejecucion[0].recurso)
           var bloq;
           if (index > -1) {
-            bloq = this.recurso_disponible.splice(index, 1); //Probar si el recurso está disponible
-            if (bloq == undefined) {
-              this.bloqueado.push(this.ejecucion.pop())
-            }
+            bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            console.log(this.recurso_en_uso, bloq)
           } else {
             this.bloqueado.push(this.ejecucion.shift())
+            if (this.t_bloqueado == 3) {
+              this.t_bloqueado += 1;
+              this.listos.push(this.bloqueado.shift())
+            }
           }
         }
       } else {
         this.estilo = "#00FF00"
-        if (this.t_proceso <= this.t_quantum) {
-          if (this.tiempo_ejecucion == this.t_proceso) {
-            this.terminado.push(this.ejecucion.pop())
+        this.tiempo_ejecucion +=1;
+        if (this.ejecucion[0].tiempo <= this.ejecucion[0].quantum) {
+          if (this.tiempo_ejecucion == this.ejecucion[0].tiempo) {
+            this.terminado.push(this.ejecucion.shift())
+            this.tiempo_ejecucion = 0;
+            this.recurso_disponible.push(this.recurso_en_uso.shift())
+            console.log(this.recurso_disponible)
+          }
+        } else {
+          if (this.tiempo_ejecucion == this.ejecucion[0].quantum) {
+            this.ejecucion[0].tiempo -= this.ejecucion[0].quantum
+            this.tiempo_ejecucion = 0
+            this.suspendido.push(this.ejecucion.pop())
+            this.notificarSuspendido()
+            this.recurso_disponible.push(this.recurso_en_uso.shift())
+            // this.suspendido.push(this.ejecucion.shift())
           }
         }
       }
-    })
+    },1000)
+  }
+
+  startProcesador_2() {
+    this.t_suspendido_2 = 0;
+    this.t_bloqueado_2 = 0
+      let timer = setInterval(() =>{
+      if (this.listos_2.length == 0 && this.suspendido_2.length == 0 && this.ejecucion_2.length == 0) {
+        clearInterval(timer);
+      }
+
+      if (this.ejecucion_2.length == 0) {
+        if (this.cont_2 > 0) {
+          this.postEjecutarProcesos()
+          this.ejecucion_2.push(this.listos_2.shift())
+          this.cont_2 -= 1;
+          var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
+          var bloq;
+          if (index > -1) {
+            bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
+            this.recurso_en_uso.push(bloq);
+            console.log(this.recurso_en_uso, bloq)
+          } else {
+            this.bloqueado_2.push(this.ejecucion_2.shift())
+            if (this.t_bloqueado_2 == 3) {
+              this.t_bloqueado_2 += 1;
+              this.listos.push(this.bloqueado.shift())
+            }
+          }
+        }
+      } else {
+        this.estilo_2 = "#00FF00"
+        this.tiempo_ejecucion_2 +=1;
+        if (this.ejecucion_2[0].tiempo <= this.ejecucion_2[0].quantum) {
+          if (this.tiempo_ejecucion_2 == this.ejecucion_2[0].tiempo) {
+            this.terminado_2.push(this.ejecucion_2.shift())
+            this.tiempo_ejecucion_2 = 0;
+            this.recurso_disponible.push(this.recurso_en_uso.shift())
+            console.log(this.recurso_disponible)
+          }
+        } else {
+          if (this.tiempo_ejecucion_2 == this.ejecucion_2[0].quantum) {
+            this.ejecucion_2[0].tiempo -= this.ejecucion_2[0].quantum
+            this.tiempo_ejecucion_2 = 0
+            this.suspendido_2.push(this.ejecucion_2.pop())
+            this.notificarSuspendido_2()
+            this.recurso_disponible.push(this.recurso_en_uso.shift())
+            // this.suspendido.push(this.ejecucion.shift())
+          }
+        }
+      }
+    },1000)
   }
   //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
   getInfoListos() {
     this.roundRobinService.getInfoListos()
       .then(data => {
-        console.log("[COLA LISTOS] ", data[0])
+        console.log("[COLA LISTOS] ", data[0], data[0].tiempo)
         this.listos = data[0]
         this.cont = data[0].length
-        this.t_proceso = data[0].tiempo
-        this.t_quantum = data[0].quantum
         console.log("[COLA LISTOS] ", data[1])
         this.listos_2 = data[1]
         this.cont_2 = data[1].length
@@ -280,6 +363,7 @@ export class RoundrobinComponent implements OnInit {
       .then(() => {
         console.log("Recurso creado")
         this.getRecursos();
+        // this.recurso_disponible.push(this.recurso.value)
       })
   }
 
@@ -326,7 +410,7 @@ export class RoundrobinComponent implements OnInit {
 
   tiempo_en_suspendidos() {
 
-    this.estilo = "#0000FF"
+    this.estilo = "#FF9E4A"
     let timer = Observable.timer(1000, 1000).subscribe(tiempo => {
       tiempo += 1
       if (tiempo == 3) {
@@ -347,7 +431,7 @@ export class RoundrobinComponent implements OnInit {
         this.estilo == "#00FF00"
         timer.unsubscribe()
         // this.postEjecutarProcesos()
-        this.detenerEjecucion()
+        // this.detenerEjecucion()
       }
 
     })
@@ -566,6 +650,18 @@ export class RoundrobinComponent implements OnInit {
     document.text(20, 130, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 140)
     document.text("Total procesos: " + this.total_procesos_2.length.toString(), 20, 150)
+
+    // document.setFontSize(16);
+    // document.setTextColor(105, 156, 175)
+    // document.text('PROCESADOR 3', 20, 160);
+
+    // document.setTextColor(0, 0, 0)
+    // document.setFontSize(12);
+    // document.text("Tiempo en procesador: " + this.t_total_2.toString() + " segundos", 20, 110)
+    // document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_2.toString() + " segundos", 20, 120)
+    // document.text(20, 130, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
+    // document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 140)
+    // document.text("Total procesos: " + this.total_procesos_2.length.toString(), 20, 150)
 
     //ARCHIVO
     document.save('metricas.pdf')
