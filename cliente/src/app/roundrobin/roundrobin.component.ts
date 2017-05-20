@@ -65,13 +65,11 @@ export class RoundrobinComponent implements OnInit {
   private t_cpu_3 = 0
 
 // OTRAS VARIABLES
+
+  private tiempo_simulacion = 0
   private items_recursos = []
 
   private cronometro = 0
-
-  private tiempo_simulacion = {
-    tiempo: null
-  }
 
   private recurso = {
     value: null
@@ -242,7 +240,7 @@ export class RoundrobinComponent implements OnInit {
           }
         }
       }
-    },1000)
+      },1000*this.tiempo_simulacion)
   }
 
   startProcesador_2() {
