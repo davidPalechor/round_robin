@@ -510,7 +510,7 @@ export class RoundrobinComponent implements OnInit {
 
   tiempo_en_proc_2() {
 
-    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       this.context_2.fillStyle = this.estilo_2
       this.context_2.fillRect(this.t_cpu_2 * 2, 0, 2, 20)
@@ -526,7 +526,7 @@ export class RoundrobinComponent implements OnInit {
   tiempo_en_suspendidos_2() {
 
     this.estilo_2 = "#0000FF"
-    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       if (tiempo == 3) {
         console.log("De suspendidos a Listos")
@@ -553,7 +553,7 @@ export class RoundrobinComponent implements OnInit {
 // |----------------------------------------------PROCESADOR 3----------------------------||
 tiempo_en_proc_3() {
 
-    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       this.context_3.fillStyle = this.estilo_3
       this.context_3.fillRect(this.t_cpu_3 * 2, 0, 2, 20)
