@@ -52,13 +52,11 @@
                 <button (click)="generarPDF()" class='btn btn-success'>Generar PDF</button>
             </div>
             <div class="col-xs-4">
-                <div *ngIf="listos.length>0 || listos_2.length>0">
-                    <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
-                    <button class="btn btn-success" (click)="ejecutarProcesos(param.recurso)" id="btn_proceso">Ejecutar</button>
-                </div>
+                <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
+                <button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
             </div>
             <div class="col-xs-4">
-
+                <button class="btn btn-success" (click)="pausarSimulacion()" [disabled]="enEjecucion == false">Pausar</button>
             </div>
         </div>
         <div class="row">
@@ -343,7 +341,7 @@
                 <div class="row">
                     <div class="col-xs-12" *ngIf="total_procesos_3.length > 0">
                         <h3>Diagrama de Gantt</h3>
-                        <canvas #gant_2 height="20px"></canvas>
+                        <canvas #gant_3 height="20px"></canvas>
                     </div>
                 </div>
                 <div class="col-xs-12 centered" *ngIf="ejecucion_3.length > 0">
@@ -358,10 +356,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <td>{{ejecucion_2[0].nombre}}</td>
-                                <td>{{ejecucion_2[0].tiempo - tiempo_ejecucion_2}}</td>
-                                <td>{{ejecucion_2[0].recurso}}</td>
-                                <td>{{ejecucion_2[0].quantum - tiempo_ejecucion_2}}</td>
+                                <td>{{ejecucion_3[0].nombre}}</td>
+                                <td>{{ejecucion_3[0].tiempo - tiempo_ejecucion_3}}</td>
+                                <td>{{ejecucion_3[0].recurso}}</td>
+                                <td>{{ejecucion_3[0].quantum - tiempo_ejecucion_3}}</td>
                             </tbody>
                         </table>
                     </div>
