@@ -4,12 +4,12 @@
 <!-- FORMULARIOS PARA RECURSOS Y PROCESOS-->
 <div class="row">
     <div class="col-md-4 col-sm-4 formulario">
-        <form (ngSubmit)="postCrearRecurso()">
+        <form (ngSubmit)="postCrearRecurso()" #agregarRecurso="ngForm">
             <div class="row control-group">
                 <div class="form-group col-xs-12">
                     <label for="recurso">Recurso</label>
                     <input type="text" class="form-control" placeholder="Recurso" id="recurso" required [(ngModel)]="recurso.value" name="recurso">
-                    <button class="btn btn-success">Agregar Recurso</button>
+                    <button class="btn btn-success" [disabled] = "!agregarRecurso.form.valid" >Agregar Recurso</button>
                 </div>
             </div>
         </form>

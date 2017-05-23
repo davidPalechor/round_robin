@@ -9,7 +9,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 
 
 # COLAS DE PROCESOS
-# Procesador 1
+# Procesador 1ef isVacia(self):
 listos = Cola()
 suspendidos = Cola()
 bloqueados = Cola()

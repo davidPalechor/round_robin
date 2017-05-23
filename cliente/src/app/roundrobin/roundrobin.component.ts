@@ -166,16 +166,16 @@ export class RoundrobinComponent implements OnInit {
     this.prepararCanvas()
     this.enEjecucion = true
     // this.postEjecutarProcesos()
-    if (this.listos.length > 0) {
+    if (this.listos.length > 0||this.ejecucion.length>0) {
       this.startProcesador_1()
       this.tiempo_en_proc_1()
     }
-    if (this.listos_2.length > 0) {
+    if (this.listos_2.length > 0||this.ejecucion_3.length>0) {
       this.startProcesador_2()
       this.tiempo_en_proc_2()
     }
 
-    if (this.listos_3.length > 0) {
+    if (this.listos_3.length > 0||this.ejecucion_3.length>0) {
       this.startProcesador_3()
       this.tiempo_en_proc_3()
     }
@@ -265,7 +265,7 @@ export class RoundrobinComponent implements OnInit {
     this.t_suspendido_2 = 0;
     this.t_bloqueado_2 = 0
     let timer = setInterval(() => {
-      this.t_cpu_2 += 1;
+      this.t_total_2 += 1;
       if(!this.enEjecucion){
         clearInterval(timer)
       }
@@ -322,7 +322,7 @@ export class RoundrobinComponent implements OnInit {
   startProcesador_3() {
     this.t_bloqueado_3 = 0
     let timer = setInterval(() => {
-      this.t_cpu_3 += 1;
+      this.t_total_3 += 1;
       if(!this.enEjecucion){
         clearInterval(timer)
       }
@@ -464,7 +464,7 @@ export class RoundrobinComponent implements OnInit {
   tiempo_en_suspendidos() {
 
     this.estilo = "#FF9E4A"
-    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       if (tiempo == 3) {
         console.log("De suspendidos a Listos")
@@ -569,7 +569,7 @@ tiempo_en_proc_3() {
   tiempo_en_suspendidos_3() {
 
     this.estilo_3 = "#0000FF"
-    let timer = Observable.timer(0, 1000).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       if (tiempo == 3) {
         console.log("De suspendidos a Listos")
@@ -621,9 +621,14 @@ tiempo_en_proc_3() {
     let rendimiento = prom_cpu / prom_procesador;
 
     //VARIABLES MEDIDAS: PROCESADOR 2
-    let prom_procesador_2 = this.t_total / this.total_procesos_2.length;
+    let prom_procesador_2 = this.t_total_2 / this.total_procesos_2.length;
     let prom_cpu_2 = this.t_cpu_2 / this.total_procesos_2.length;
     let rendimiento_2 = prom_cpu_2 / prom_procesador_2;
+
+    //VARIABLES MEDIDAS: PROCESADOR 3
+    let prom_procesador_3 = this.t_total_3 / this.total_procesos_3.length;
+    let prom_cpu_3 = this.t_cpu_3 / this.total_procesos_3.length;
+    let rendimiento_3 = prom_cpu_3 / prom_procesador_3;
 
     var document = new jsPDF();
     // TITULO
@@ -663,11 +668,11 @@ tiempo_en_proc_3() {
 
     document.setTextColor(0, 0, 0)
     document.setFontSize(12);
-    document.text("Tiempo en procesador: " + this.t_total_2.toString() + " segundos", 20, 170)
-    document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_2.toString() + " segundos", 20, 180)
-    document.text(20, 190, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
-    document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 200)
-    document.text("Total procesos: " + this.total_procesos_2.length.toString(), 20, 210)
+    document.text("Tiempo en procesador: " + this.t_total_3.toString() + " segundos", 20, 170)
+    document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_3.toString() + " segundos", 20, 180)
+    document.text(20, 190, "Promedio de tiempos en procesador: " + this.t_total_3.toString() + " segundos")
+    document.text("Rendimiento: " + rendimiento_3 * 100 + "%", 20, 200)
+    document.text("Total procesos: " + this.total_procesos_3.length.toString(), 20, 210)
 
     //ARCHIVO
     document.save('metricas.pdf')

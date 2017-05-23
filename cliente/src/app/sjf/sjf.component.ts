@@ -6,7 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./sjf.component.css']
 })
 export class SjfComponent implements OnInit {
-
+title="Shortest Job First SJF"
+  
   constructor() { }
 
   ngOnInit() {
