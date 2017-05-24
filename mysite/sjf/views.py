@@ -38,7 +38,7 @@ en_uso = []
 cola_hilos = Cola()
 
 
-def round_robin(request):
+def sjf(request):
     threads = list()
     global cola_int
     # global listos
@@ -90,20 +90,17 @@ def round_robin(request):
             proceso = Nodo()
 
             if int(procesador) == 1:
-                context['quantum'] = calcularQuantum(listos, tiempo)
                 proceso.info = context
                 print "Proceso a Procesador 1"
                 listos.push(proceso)
             if int(procesador) == 2:
-                context['quantum'] = calcularQuantum(listos_p2, tiempo)
                 proceso.info = context
-                print "Proceso a Procesadro 2"
+                print "Proceso a Procesador 2"
                 listos_p2.push(proceso)
             
             if int(procesador) == 3:
-                context['quantum'] = calcularQuantum(listos_p3, tiempo)
                 proceso.info = context
-                print "Proceso a Procesadro 3"
+                print "Proceso a Procesador 3"
                 listos_p3.push(proceso)
 
             crearHilo(context['nombre'], context['tiempo'],
@@ -111,26 +108,6 @@ def round_robin(request):
             return HttpResponse("Success!")
         except:
             return HttpResponseBadRequest('Bad request')
-
-
-def calcularQuantum(cola, tiempo):
-    quantum = 0
-    num = 0
-    if cola.isVacia():
-        quantum = tiempo
-    else:
-        item = cola.cab
-        while item is not None:
-            quantum += item.info['tiempo']
-            num += 1
-            item = item.sig
-        quantum = int(round(quantum / num))        
-        if tiempo >= quantum:
-            quantum = int(math.ceil(quantum * 2 / 3))
-        else:
-            quantum = int(math.ceil(tiempo * 2 / 3))
-        
-    return quantum
 
 
 def listaListos(request):
@@ -246,29 +223,6 @@ def listarEjecutados(request):
             return HttpResponseBadRequest("No hay items para ejecutar " + str(e))
 
 
-def listarSuspendidos(request):
-    if request.method == 'GET':
-        try:
-            global suspendidos
-            respuesta = [[],[],[]]
-            proceso = suspendidos.cab
-
-            while proceso is not None:
-                respuesta[0].append(proceso.info)
-                proceso = proceso.sig
-
-            
-            proceso = suspendidos_p2.cab
-            while proceso is not None:
-                respuesta[1].append(proceso.info)
-                proceso = proceso.sig
-
-            print "[ListarSuspendidos]" + str(respuesta)
-            return JsonResponse(respuesta, safe=False)
-        except:
-            return HttpResponseBadRequest("Error interno")
-
-
 def listarTerminados(request):
     if request.method == 'GET':
         try:
@@ -294,39 +248,6 @@ def listarTerminados(request):
             return JsonResponse(respuesta, safe=False)
         except:
             return HttpResponseBadRequest("Error interno")
-
-
-def actualizarEstado(request):
-    if request.method == "POST":
-        try:
-            global ejecutados_p1
-            global ejecutados_p2
-            if ejecutados_p1.cab is not None:
-                ejecutados_p1.cab.info['estado'] = "suspendido"
-            return HttpResponse("[SERV] Estado actualizado")
-        except:
-            return HttpResponseBadRequest("No se pudo actualizar")
-
-def actualizarEstado_2(request):
-    if request.method == "POST":
-        try:
-            global ejecutados_p2
-            if ejecutados_p2.cab is not None:
-                ejecutados_p2.cab.info['estado'] = "suspendido"
-            return HttpResponse("[SERV] Estado actualizado")
-        except:
-            return HttpResponseBadRequest("No se pudo actualizar")
-
-def actualizarEstado_3(request):
-    if request.method == "POST":
-        try:
-            global ejecutados_p3
-            if ejecutados_p3.cab is not None:
-                ejecutados_p3.cab.info['estado'] = "suspendido"
-            return HttpResponse("[SERV] Estado actualizado")
-        except:
-            return HttpResponseBadRequest("No se pudo actualizar")
-
 
 
 def procesador_1(tiempo, quantum, recurso):
@@ -372,7 +293,6 @@ def procesador_1(tiempo, quantum, recurso):
             suspendidos.push(ejecutados_p1.pop())
             suspendidos.cab.info['tiempo'] -= seg
             print "[PROCESADOR 1] Esperando..."
-            quantum = calcularQuantum(listos,suspendidos.cab.info['tiempo'])
             evento.wait(3)
             listos.push(suspendidos.pop())
             listos.cab.info['estado'] = 'listo'
@@ -426,24 +346,7 @@ def procesador_2(tiempo, quantum, recurso):
     print "PROCESADOR 2: " + proceso
     fin = 1000000000
     seg = 0
-    t_restante = 0
     while seg < tiempo:
-        if ejecutados_p2.cab is not None:
-            estado = ejecutados_p2.cab.info['estado']
-        else:
-            estado = 'ejecucion'
-
-        if estado == 'suspendido':
-            suspendidos_p2.push(ejecutados_p2.pop())
-            suspendidos_p2.cab.info['tiempo'] -= seg
-            evento.wait(3)
-            print "[PROCESADOR 2] Esperando..."
-
-            quantum = calcularQuantum(listos_p2,suspendidos.cab.info['tiempo'])
-            listos_p2.push(suspendidos_p2.pop())
-            listos_p2.cab.info['estado'] = 'ejecucion'
-            listos.cab.info['quantum'] = quantum
-
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
@@ -486,24 +389,7 @@ def procesador_3(tiempo, quantum, recurso):
     print "PROCESADOR 3: " + proceso
     fin = 1000000000
     seg = 0
-    t_restante = 0
     while seg < tiempo:
-        if ejecutados_p3.cab is not None:
-            estado = ejecutados_p3.cab.info['estado']
-        else:
-            estado = 'ejecucion'
-
-        if estado == 'suspendido':
-            suspendidos_p3.push(ejecutados_p3.pop())
-            suspendidos_p3.cab.info['tiempo'] -= seg
-
-            print "[PROCESADOR 3] Esperando..."
-            evento.wait(3)
-            quantum = calcularQuantum(listos_p3,suspendidos.cab.info['tiempo'])
-            listos_p3.push(suspendidos_p3.pop())
-            listos_p3.cab.info['estado'] = 'ejecucion'
-            listos.cab.info['quantum'] = quantum
-
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
