@@ -114,7 +114,6 @@ export class SjfComponent implements OnInit {
     this.getInfoListos()
     this.getRecursos()
     // this.listarEjecucion()
-    this.listarSuspendido()
     this.listarTerminados()
   }
 
@@ -183,7 +182,9 @@ export class SjfComponent implements OnInit {
 
   indexRecurso(lista, elemento) {
     let i = 0
-
+    if (lista.length == 0) {
+      return -1;
+    }
     while (elemento != lista[i].recurso) {
       i += 1
       if (i >= lista.length) {
@@ -202,14 +203,15 @@ export class SjfComponent implements OnInit {
     this.t_bloqueado = 0
     let timer = setInterval(() => {
       this.t_total += 1;
+
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
-      if (this.listos.length == 0 && this.ejecucion.length == 0) {
+
+      if (this.listos.length == 0 && this.bloqueado.length == 0 && this.ejecucion.length == 0) {
         clearInterval(timer);
-        // this.p1_enEjecucion = false;
       }
-      console.log(this.enEjecucion)
+
       if (this.ejecucion.length == 0) {
         if (this.cont > 0) {
           this.postEjecutarProcesos()
@@ -223,11 +225,16 @@ export class SjfComponent implements OnInit {
             console.log(this.recurso_en_uso, bloq)
           } else {
             this.bloqueado.push(this.ejecucion.shift())
-            if (this.t_bloqueado == 3) {
-              this.t_bloqueado += 1;
-              this.listos.push(this.bloqueado.shift())
-            }
+            this.t_bloqueado += 1;
           }
+        }
+        if (this.bloqueado.length > 0) {
+          index = this.indexRecurso(this.recurso_disponible, this.bloqueado[0].recurso)
+          if (index > -1) {
+            this.cont += 1;
+            this.listos.push(this.bloqueado.shift())
+          }
+          this.t_bloqueado += 1;
         }
       } else {
         this.estilo = "#00FF00"
@@ -252,7 +259,7 @@ export class SjfComponent implements OnInit {
         clearInterval(timer)
       }
 
-      if (this.listos_2.length == 0 && this.ejecucion_2.length == 0) {
+      if (this.listos_2.length == 0 && this.bloqueado_2.length == 0 && this.ejecucion_2.length == 0) {
         clearInterval(timer);
       }
 
@@ -269,11 +276,16 @@ export class SjfComponent implements OnInit {
             console.log(this.recurso_en_uso, bloq)
           } else {
             this.bloqueado_2.push(this.ejecucion_2.shift())
-            if (this.t_bloqueado_2 == 3) {
-              this.t_bloqueado_2 += 1;
-              this.listos.push(this.bloqueado.shift())
-            }
+            this.t_bloqueado_2 += 1;
           }
+        }
+        if (this.bloqueado_2.length > 0) {
+          index = this.indexRecurso(this.recurso_disponible, this.bloqueado_2[0].recurso)
+          if (index > -1) {
+            this.cont += 1;
+            this.listos_2.push(this.bloqueado_2.shift())
+          }
+          this.t_bloqueado_2 += 1;
         }
       } else {
         this.estilo_2 = "#00FF00"
@@ -299,7 +311,7 @@ export class SjfComponent implements OnInit {
         clearInterval(timer)
       }
 
-      if (this.listos_3.length == 0 && length == 0 && this.ejecucion_3.length == 0) {
+      if (this.listos_3.length == 0 && this.bloqueado_3.length == 0 && this.ejecucion_3.length == 0) {
         clearInterval(timer);
       }
 
@@ -313,13 +325,14 @@ export class SjfComponent implements OnInit {
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            if (this.bloqueado_3.length > 0) {
+              this.listos_3.push(this.bloqueado_3.pop())
+            }
             console.log(this.recurso_en_uso, bloq)
           } else {
             this.bloqueado_3.push(this.ejecucion_3.shift())
-            if (this.t_bloqueado_3 == 3) {
-              this.t_bloqueado_3 += 1;
-              this.listos.push(this.bloqueado.shift())
-            }
+            this.listos.push(this.bloqueado.shift())
+            this.t_bloqueado_3 += 1;
           }
         }
       } else {
@@ -426,7 +439,7 @@ export class SjfComponent implements OnInit {
       if (!this.enEjecucion) {
         timer.unsubscribe()
       }
-      if (this.listos.length == 0 && 0 && this.ejecucion.length == 0) {
+      if (this.listos.length == 0 && this.bloqueado.length == 0 && this.ejecucion.length == 0) {
         timer.unsubscribe()
       }
     })
@@ -451,7 +464,9 @@ export class SjfComponent implements OnInit {
     })
   }
 
+  // |--------------------------------------------------------------------------------------||
   // |----------------------------------------------PROCESADOR 3----------------------------||
+  // |--------------------------------------------------------------------------------------||
   tiempo_en_proc_3() {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
@@ -469,7 +484,7 @@ export class SjfComponent implements OnInit {
 
   // ||---------------------------------------OTRAS OPERACIONES----------------------------||
 
-  
+
   generarPDF() {
 
     //VARIABLES MEDIDAS: PROCESADOR 1 

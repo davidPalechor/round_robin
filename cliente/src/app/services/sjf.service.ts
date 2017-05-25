@@ -9,11 +9,7 @@ export class SjfService {
   private urlEjecutarProceso = 'http://localhost:8000/sjf/ejecutar/'
   private urlGetEjecutados = 'http://localhost:8000/sjf/lista_ejecutados/'
   private urlRecursos = 'http://localhost:8000/sjf/recursos/'
-  private urlGetSuspendidos = 'http://localhost:8000/sjf/lista_suspendidos/'
   private urlGetTerminados = 'http://localhost:8000/sjf/lista_terminados/'
-  private urlNotificarSuspendido = 'http://localhost:8000/sjf/notificar_suspendido/'
-  private urlNotificarSuspendido_2 = 'http://localhost:8000/sjf/notificar_suspendido_2/'
-  private urlNotificarSuspendido_3 = 'http://localhost:8000/sjf/notificar_suspendido_3/'
 
   constructor(private http: Http) { }
 
@@ -33,43 +29,6 @@ export class SjfService {
 
   getListaTerminados() {
     return this.http.get(this.urlGetTerminados)
-      .toPromise()
-      .then(response => response.json())
-      .catch(this.handleError);
-  }
-
-  postNotificarSuspendido() {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-
-    return this.http.post(this.urlNotificarSuspendido, options)
-      .toPromise()
-      .then(() => console.log("[Servicio]:Estado Notificado: suspendido"))
-      .catch(this.handleError)
-  }
-
-  postNotificarSuspendido_2() {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-
-    return this.http.post(this.urlNotificarSuspendido_2, options)
-      .toPromise()
-      .then(() => console.log("[Servicio Proc_2]:Estado Notificado: suspendido"))
-      .catch(this.handleError)
-  }
-
-  postNotificarSuspendido_3() {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-
-    return this.http.post(this.urlNotificarSuspendido_3, options)
-      .toPromise()
-      .then(() => console.log("[Servicio Proc_3]:Estado Notificado: suspendido"))
-      .catch(this.handleError)
-  }
-
-  getInfoSuspendido() {
-    return this.http.get(this.urlGetSuspendidos)
       .toPromise()
       .then(response => response.json())
       .catch(this.handleError);

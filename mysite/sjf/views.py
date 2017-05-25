@@ -257,7 +257,6 @@ def procesador_1(tiempo, quantum, recurso):
 
     # COLAS
     global ejecutados_p1
-    global suspendidos
     global bloqueados
     global terminados
     global listos
@@ -265,51 +264,28 @@ def procesador_1(tiempo, quantum, recurso):
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
-    cv = th.Condition()
+    
     if recurso in disponibles:
-        cv.acquire()
         print "RECURSO DISBONIBLE, BLOQUEANDO..."
         index = disponibles.index(recurso)
         en_uso.append(disponibles.pop(index))
         print en_uso
     else:
-        cv.acquire()
         while recurso not in disponibles:
-            cv.wait()
+            time.sleep(4)
 
     evento = th.Event()
     inicio = time.time()
     print "PROCESADOR 1: " + proceso
     fin = 1000000000
     seg = 0
-    t_restante = 0
     while seg < tiempo:
-        if ejecutados_p1.cab is not None:
-            estado = ejecutados_p1.cab.info['estado']
-        else:
-            estado = 'listo'
-
-        if estado == 'suspendido':
-            suspendidos.push(ejecutados_p1.pop())
-            suspendidos.cab.info['tiempo'] -= seg
-            print "[PROCESADOR 1] Esperando..."
-            evento.wait(3)
-            listos.push(suspendidos.pop())
-            listos.cab.info['estado'] = 'listo'
-            listos.cab.info['quantum'] = quantum
-            estado = 'listo'
-
-            ejecutados_p1.push(listos.pop())
         fin = time.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
     terminados.push(ejecutados_p1.pop())
     disponibles.append(en_uso.pop())
-    cv.notify()
-    cv.release()
-    #ejecutados[1] = None
-    # print terminados.cab.info
     print "PROCESADOR 1: PROCESO " + proceso + " TERMINADO"
     return
 
@@ -321,7 +297,6 @@ def procesador_2(tiempo, quantum, recurso):
 
     # COLAS
     global ejecutados_p2
-    global suspendidos_p2
     global bloqueados_p2
     global terminados_p2
     global listos_p2
@@ -329,30 +304,24 @@ def procesador_2(tiempo, quantum, recurso):
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
-    cv = th.Condition()
     if recurso in disponibles:
-        cv.acquire()
         print "RECURSO DISBONIBLE, BLOQUEANDO..."
         index = disponibles.index(recurso)
         en_uso.append(disponibles.pop(index))
         print en_uso
     else:
-        cv.acquire()
         while recurso not in disponibles:
-            cv.wait()
+            time.sleep(4)
 
-    evento = th.Event()
     inicio = time.time()
     print "PROCESADOR 2: " + proceso
     fin = 1000000000
     seg = 0
     while seg < tiempo:
         fin = time.time()
-        # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
     terminados_p2.push(ejecutados_p2.pop())
-    #ejecutados[1] = None
     print "PROCESADOR 2: PROCESO " + proceso + " TERMINADO"
     return
 
@@ -364,7 +333,6 @@ def procesador_3(tiempo, quantum, recurso):
 
     # COLAS
     global ejecutados_p3
-    global suspendidos_p3
     global bloqueados_p3
     global terminados_p3
     global listos_p3
@@ -372,30 +340,24 @@ def procesador_3(tiempo, quantum, recurso):
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
-    cv = th.Condition()
     if recurso in disponibles:
-        cv.acquire()
         print "RECURSO DISBONIBLE, BLOQUEANDO..."
         index = disponibles.index(recurso)
         en_uso.append(disponibles.pop(index))
         print en_uso
     else:
-        cv.acquire()
         while recurso not in disponibles:
-            cv.wait()
+            time.sleep(4)
 
-    evento = th.Event()
     inicio = time.time()
     print "PROCESADOR 3: " + proceso
     fin = 1000000000
     seg = 0
     while seg < tiempo:
         fin = time.time()
-        # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
     terminados_p3.push(ejecutados_p3.pop())
-    #ejecutados[1] = None
     print terminados_p3.cab.info
     print "PROCESADOR 3: PROCESO " + proceso + " TERMINADO"
     return
