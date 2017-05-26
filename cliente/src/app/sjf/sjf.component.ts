@@ -118,23 +118,19 @@ export class SjfComponent implements OnInit {
   }
 
   prepararCanvas() {
-    if (this.total_procesos.length > 0) {
-      this.canvas = this.gant_p1.nativeElement
-      this.context = this.canvas.getContext("2d");
-      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    }
+    this.canvas = this.gant_p1.nativeElement
+    this.context = this.canvas.getContext("2d");
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-    if (this.total_procesos_2.length > 0) {
-      this.canvas_2 = this.gant_p2.nativeElement
-      this.context_2 = this.canvas_2.getContext("2d");
-      this.context_2.clearRect(0, 0, this.canvas_2.width, this.canvas_2.height)
-    }
+    this.canvas_2 = this.gant_p2.nativeElement
+    this.context_2 = this.canvas_2.getContext("2d");
+    this.context_2.clearRect(0, 0, this.canvas_2.width, this.canvas_2.height)
 
-    if (this.total_procesos_3.length > 0) {
-      this.canvas_3 = this.gant_p3.nativeElement
-      this.context_3 = this.canvas_3.getContext("2d");
-      this.context_3.clearRect(0, 0, this.canvas_3.width, this.canvas_3.height)
-    }
+
+    this.canvas_3 = this.gant_p3.nativeElement
+    this.context_3 = this.canvas_3.getContext("2d");
+    this.context_3.clearRect(0, 0, this.canvas_3.width, this.canvas_3.height)
+
   }
 
 
@@ -158,21 +154,19 @@ export class SjfComponent implements OnInit {
 
   ejecutarProcesos() {
     this.prepararCanvas()
+    this.terminarEjecucion()
     this.enEjecucion = true
     // this.postEjecutarProcesos()
-    if (this.listos.length > 0 || this.ejecucion.length > 0) {
-      this.startProcesador_1()
-      this.tiempo_en_proc_1()
-    }
-    if (this.listos_2.length > 0 || this.ejecucion_3.length > 0) {
-      this.startProcesador_2()
-      this.tiempo_en_proc_2()
-    }
+    this.startProcesador_1()
+    this.tiempo_en_proc_1()
 
-    if (this.listos_3.length > 0 || this.ejecucion_3.length > 0) {
-      this.startProcesador_3()
-      this.tiempo_en_proc_3()
-    }
+    this.startProcesador_2()
+    this.tiempo_en_proc_2()
+
+
+    this.startProcesador_3()
+    this.tiempo_en_proc_3()
+
     //this.tiempo_en_proc_2()
   }
 
@@ -195,6 +189,26 @@ export class SjfComponent implements OnInit {
     return i;
   }
 
+  terminarEjecucion() {
+
+    let timer = setInterval(() => {
+      console.log("evaluando")
+      if (this.listos.length == 0 &&
+        this.listos_2.length == 0 &&
+        this.listos_3.length == 0 &&
+        this.bloqueado.length == 0 &&
+        this.bloqueado_2.length == 0 &&
+        this.bloqueado_3.length == 0 &&
+        this.ejecucion.length == 0 &&
+        this.ejecucion_2.length == 0 &&
+        this.ejecucion_3.length == 0) {
+        console.log("Terminando")
+        this.enEjecucion = false
+        clearInterval(timer)
+      }
+    }, 1000)
+  }
+
   pausarSimulacion() {
     this.enEjecucion = false
   }
@@ -203,17 +217,12 @@ export class SjfComponent implements OnInit {
     this.t_bloqueado = 0
     let timer = setInterval(() => {
       this.t_total += 1;
-
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
 
-      if (this.listos.length == 0 && this.bloqueado.length == 0 && this.ejecucion.length == 0) {
-        clearInterval(timer);
-      }
-
       if (this.ejecucion.length == 0) {
-        if (this.cont > 0) {
+        if (this.listos.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion.push(this.listos.shift())
           this.cont -= 1;
@@ -222,8 +231,8 @@ export class SjfComponent implements OnInit {
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
-            console.log(this.recurso_en_uso, bloq)
           } else {
+            this.estilo = "#FF0000"
             this.bloqueado.push(this.ejecucion.shift())
             this.t_bloqueado += 1;
           }
@@ -244,7 +253,7 @@ export class SjfComponent implements OnInit {
           this.terminado.push(this.ejecucion.shift())
           this.tiempo_ejecucion = 0;
           this.recurso_disponible.push(this.recurso_en_uso.shift())
-          console.log(this.recurso_disponible)
+          console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
         }
       }
     }, 1000 * 1 / this.tiempo_simulacion)
@@ -259,15 +268,10 @@ export class SjfComponent implements OnInit {
         clearInterval(timer)
       }
 
-      if (this.listos_2.length == 0 && this.bloqueado_2.length == 0 && this.ejecucion_2.length == 0) {
-        clearInterval(timer);
-      }
-
       if (this.ejecucion_2.length == 0) {
-        if (this.cont_2 > 0) {
+        if (this.listos_2.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion_2.push(this.listos_2.shift())
-          this.cont_2 -= 1;
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
           var bloq;
           if (index > -1) {
@@ -275,6 +279,8 @@ export class SjfComponent implements OnInit {
             this.recurso_en_uso.push(bloq);
             console.log(this.recurso_en_uso, bloq)
           } else {
+
+            this.estilo_2 = "#FF0000"
             this.bloqueado_2.push(this.ejecucion_2.shift())
             this.t_bloqueado_2 += 1;
           }
@@ -311,12 +317,11 @@ export class SjfComponent implements OnInit {
         clearInterval(timer)
       }
 
-      if (this.listos_3.length == 0 && this.bloqueado_3.length == 0 && this.ejecucion_3.length == 0) {
-        clearInterval(timer);
-      }
-
+      // if (this.listos_3.length == 0 && this.bloqueado_3.length == 0 && this.ejecucion_3.length == 0) {
+      //   clearInterval(timer);
+      // }
       if (this.ejecucion_3.length == 0) {
-        if (this.cont_3 > 0) {
+        if (this.listos_3.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_3.shift())
           this.cont_3 -= 1;
@@ -330,8 +335,9 @@ export class SjfComponent implements OnInit {
             }
             console.log(this.recurso_en_uso, bloq)
           } else {
+            this.estilo_2 = "#FF0000"
             this.bloqueado_3.push(this.ejecucion_3.shift())
-            this.listos.push(this.bloqueado.shift())
+            this.listos_3.push(this.bloqueado_3.shift())
             this.t_bloqueado_3 += 1;
           }
         }
@@ -421,8 +427,8 @@ export class SjfComponent implements OnInit {
   getRecursos() {
     this.sjfService.getRecursos()
       .then(data => {
-        this.items_recursos = data
-        this.recurso_disponible = data
+        this.items_recursos = data;
+        this.recurso_disponible = this.items_recursos.slice(0);
       })
   }
 
@@ -434,12 +440,10 @@ export class SjfComponent implements OnInit {
   tiempo_en_proc_1() {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
+
       this.context.fillStyle = this.estilo
       this.context.fillRect(this.t_total * 2, 0, 2, 20)
       if (!this.enEjecucion) {
-        timer.unsubscribe()
-      }
-      if (this.listos.length == 0 && this.bloqueado.length == 0 && this.ejecucion.length == 0) {
         timer.unsubscribe()
       }
     })
@@ -452,13 +456,9 @@ export class SjfComponent implements OnInit {
   tiempo_en_proc_2() {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
-      tiempo += 1
       this.context_2.fillStyle = this.estilo_2
       this.context_2.fillRect(this.t_cpu_2 * 2, 0, 2, 20)
       if (!this.enEjecucion) {
-        timer.unsubscribe()
-      }
-      if (this.listos_2.length == 0 && this.ejecucion_2.length == 0) {
         timer.unsubscribe()
       }
     })
@@ -470,13 +470,10 @@ export class SjfComponent implements OnInit {
   tiempo_en_proc_3() {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
-      tiempo += 1
       this.context_3.fillStyle = this.estilo_3
       this.context_3.fillRect(this.t_cpu_3 * 2, 0, 2, 20)
+
       if (!this.enEjecucion) {
-        timer.unsubscribe()
-      }
-      if (this.listos_3.length == 0 && this.ejecucion_3.length == 0) {
         timer.unsubscribe()
       }
     })
