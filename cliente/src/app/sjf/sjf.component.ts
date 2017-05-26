@@ -192,7 +192,6 @@ export class SjfComponent implements OnInit {
   terminarEjecucion() {
 
     let timer = setInterval(() => {
-      console.log("evaluando")
       if (this.listos.length == 0 &&
         this.listos_2.length == 0 &&
         this.listos_3.length == 0 &&
@@ -216,13 +215,14 @@ export class SjfComponent implements OnInit {
   startProcesador_1() {
     this.t_bloqueado = 0
     let timer = setInterval(() => {
-      this.t_total += 1;
+      // this.t_total += 1;
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
 
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
+          this.t_total += 1
           this.postEjecutarProcesos()
           this.ejecucion.push(this.listos.shift())
           this.cont -= 1;
@@ -240,15 +240,16 @@ export class SjfComponent implements OnInit {
         if (this.bloqueado.length > 0) {
           index = this.indexRecurso(this.recurso_disponible, this.bloqueado[0].recurso)
           if (index > -1) {
-            this.cont += 1;
             this.listos.push(this.bloqueado.shift())
           }
           this.t_bloqueado += 1;
+          this.t_total += 1;
         }
       } else {
         this.estilo = "#00FF00"
         this.tiempo_ejecucion += 1;
         this.t_cpu += 1;
+        this.t_total += 1;
         if (this.tiempo_ejecucion == this.ejecucion[0].tiempo) {
           this.terminado.push(this.ejecucion.shift())
           this.tiempo_ejecucion = 0;
@@ -263,13 +264,14 @@ export class SjfComponent implements OnInit {
   startProcesador_2() {
     this.t_bloqueado_2 = 0
     let timer = setInterval(() => {
-      this.t_total_2 += 1;
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
 
       if (this.ejecucion_2.length == 0) {
         if (this.listos_2.length > 0) {
+
+          this.t_total_2 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_2.push(this.listos_2.shift())
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
@@ -277,33 +279,30 @@ export class SjfComponent implements OnInit {
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
-            console.log(this.recurso_en_uso, bloq)
           } else {
-
             this.estilo_2 = "#FF0000"
             this.bloqueado_2.push(this.ejecucion_2.shift())
-            this.t_bloqueado_2 += 1;
           }
         }
         if (this.bloqueado_2.length > 0) {
           index = this.indexRecurso(this.recurso_disponible, this.bloqueado_2[0].recurso)
           if (index > -1) {
-            this.cont += 1;
             this.listos_2.push(this.bloqueado_2.shift())
           }
           this.t_bloqueado_2 += 1;
+          this.t_total_2 += 1;
         }
       } else {
+        this.t_total_2 += 1;
         this.estilo_2 = "#00FF00"
-        this.t_cpu_2 += 1
         this.tiempo_ejecucion_2 += 1;
+        this.t_cpu_2 += 1;
         if (this.tiempo_ejecucion_2 == this.ejecucion_2[0].tiempo) {
           this.terminado_2.push(this.ejecucion_2.shift())
           this.tiempo_ejecucion_2 = 0;
           this.recurso_disponible.push(this.recurso_en_uso.shift())
-          console.log(this.recurso_disponible)
+          console.log("[PROC 2] Recurso Liberado ", this.recurso_disponible)
         }
-
       }
     }, 1000 * 1 / this.tiempo_simulacion)
   }
@@ -312,46 +311,46 @@ export class SjfComponent implements OnInit {
   startProcesador_3() {
     this.t_bloqueado_3 = 0
     let timer = setInterval(() => {
-      this.t_total_3 += 1;
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
 
-      // if (this.listos_3.length == 0 && this.bloqueado_3.length == 0 && this.ejecucion_3.length == 0) {
-      //   clearInterval(timer);
-      // }
       if (this.ejecucion_3.length == 0) {
         if (this.listos_3.length > 0) {
+
+          this.t_total_3 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_3.shift())
-          this.cont_3 -= 1;
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_3[0].recurso)
           var bloq;
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
-            if (this.bloqueado_3.length > 0) {
-              this.listos_3.push(this.bloqueado_3.pop())
-            }
-            console.log(this.recurso_en_uso, bloq)
           } else {
-            this.estilo_2 = "#FF0000"
+            this.estilo_3 = "#FF0000"
             this.bloqueado_3.push(this.ejecucion_3.shift())
-            this.listos_3.push(this.bloqueado_3.shift())
             this.t_bloqueado_3 += 1;
           }
         }
+        if (this.bloqueado_3.length > 0) {
+          index = this.indexRecurso(this.recurso_disponible, this.bloqueado_3[0].recurso)
+          if (index > -1) {
+            this.listos_3.push(this.bloqueado_3.shift())
+          }
+          this.t_bloqueado_3 += 1;
+          this.t_total_3 += 1;
+        }
       } else {
+        this.t_total_3 += 1;
         this.estilo_3 = "#00FF00"
-        this.t_cpu_3 += 1
         this.tiempo_ejecucion_3 += 1;
+        this.t_cpu_3 += 1;
         if (this.tiempo_ejecucion_3 == this.ejecucion_3[0].tiempo) {
           this.terminado_3.push(this.ejecucion_3.shift())
           this.tiempo_ejecucion_3 = 0;
           this.recurso_disponible.push(this.recurso_en_uso.shift())
-          console.log(this.recurso_disponible)
+          console.log("[PROC 3] Recurso Liberado ", this.recurso_disponible)
         }
-
       }
     }, 1000 * 1 / this.tiempo_simulacion)
   }
@@ -457,7 +456,7 @@ export class SjfComponent implements OnInit {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
       this.context_2.fillStyle = this.estilo_2
-      this.context_2.fillRect(this.t_cpu_2 * 2, 0, 2, 20)
+      this.context_2.fillRect(this.t_total_2 * 2, 0, 2, 20)
       if (!this.enEjecucion) {
         timer.unsubscribe()
       }
@@ -471,7 +470,7 @@ export class SjfComponent implements OnInit {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
       this.context_3.fillStyle = this.estilo_3
-      this.context_3.fillRect(this.t_cpu_3 * 2, 0, 2, 20)
+      this.context_3.fillRect(this.t_total * 2, 0, 2, 20)
 
       if (!this.enEjecucion) {
         timer.unsubscribe()

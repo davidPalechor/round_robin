@@ -172,7 +172,7 @@
             </div>
         </div>
         <!-- ......................................PROCESADOR 2...................................-->
-        <div class="row" id="procesador_2">
+        <div class="row">
 
             <h2>Procesador 2</h2>
             <h4>CPU</h4>
@@ -231,14 +231,12 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Recurso</th>
-                                <th>Tiempo</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of terminado_2">
                                 <td>{{item.nombre}}</td>
                                 <td>{{item.recurso}}</td>
-                                <td>{{t_bloqueado_2}}</td>
                             </tr>
                         </tbody>
                     </table>
