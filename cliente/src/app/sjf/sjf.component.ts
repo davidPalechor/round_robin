@@ -231,10 +231,6 @@ export class SjfComponent implements OnInit {
     }, 1000)
   }
 
-  pausarSimulacion() {
-    this.enEjecucion = false
-  }
-
   ordenarCola(lista) {
     var vec = lista;
     var aux, p, j, t;
@@ -255,13 +251,15 @@ export class SjfComponent implements OnInit {
 
   startProcesador_1() {
     this.t_bloqueado = 0
-    let timer = setInterval(() => {
-      // this.t_total += 1;
+
+    // let timer = setInterval(() => {
+    // this.t_total += 1;
+
+    if (this.enEjecucion) {
       this.listos = this.ordenarCola(this.listos);
-      console.log(this.listos)
-      if (!this.enEjecucion) {
-        clearInterval(timer)
-      }
+      // if (!this.enEjecucion) {
+      //   clearInterval(timer)
+      // }
 
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
@@ -304,19 +302,18 @@ export class SjfComponent implements OnInit {
           console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
         }
       }
-    }, 1000 * 1 / this.tiempo_simulacion)
+      // }, 1000 * 1 / this.tiempo_simulacion)
+
+      setTimeout(() => this.startProcesador_1(), 1000 * 1 / this.tiempo_simulacion)
+    }
   }
 
 
   startProcesador_2() {
     this.t_bloqueado_2 = 0
-    let timer = setInterval(() => {
+    if(this.enEjecucion){
 
       this.listos_2 = this.ordenarCola(this.listos_2);
-
-      if (!this.enEjecucion) {
-        clearInterval(timer)
-      }
 
       if (this.ejecucion_2.length == 0) {
         if (this.listos_2.length > 0) {
@@ -359,18 +356,17 @@ export class SjfComponent implements OnInit {
           console.log("[PROC 2] Recurso Liberado ", this.recurso_disponible)
         }
       }
-    }, 1000 * 1 / this.tiempo_simulacion)
+
+      setTimeout(() => this.startProcesador_2(), 1000 * 1 / this.tiempo_simulacion)
+    }
   }
 
 
   startProcesador_3() {
     this.t_bloqueado_3 = 0
-    let timer = setInterval(() => {
+    if(this.enEjecucion){
       this.listos_3 = this.ordenarCola(this.listos_3);
-      if (!this.enEjecucion) {
-        clearInterval(timer)
-      }
-
+   
       if (this.ejecucion_3.length == 0) {
         if (this.listos_3.length > 0) {
           this.t_total_3 += 1;
@@ -410,7 +406,9 @@ export class SjfComponent implements OnInit {
           console.log("[PROC 3] Recurso Liberado ", this.recurso_disponible)
         }
       }
-    }, 1000 * 1 / this.tiempo_simulacion)
+
+      setTimeout(() => this.startProcesador_3(),1000 * 1 / this.tiempo_simulacion)
+    }
   }
   //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
   getInfoListos() {
@@ -495,15 +493,12 @@ export class SjfComponent implements OnInit {
 
 
   tiempo_en_proc_1() {
-
-    let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
-
+    if (this.enEjecucion) {
       this.context.fillStyle = this.estilo
       this.context.fillRect(this.t_total * 2, 0, 2, 20)
-      if (!this.enEjecucion) {
-        timer.unsubscribe()
-      }
-    })
+
+      setTimeout(() => this.tiempo_en_proc_1(), 1000 * 1 / this.tiempo_simulacion)
+    }
   }
 
   // ||--------------------------------------------------------------------------------------||
@@ -512,13 +507,12 @@ export class SjfComponent implements OnInit {
 
   tiempo_en_proc_2() {
 
-    let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
+    if (this.enEjecucion) {
       this.context_2.fillStyle = this.estilo_2
       this.context_2.fillRect(this.t_total_2 * 2, 0, 2, 20)
-      if (!this.enEjecucion) {
-        timer.unsubscribe()
-      }
-    })
+
+      setTimeout(() => this.tiempo_en_proc_2(), 1000 * 1 / this.tiempo_simulacion)
+    }
   }
 
   // |--------------------------------------------------------------------------------------||
@@ -526,14 +520,12 @@ export class SjfComponent implements OnInit {
   // |--------------------------------------------------------------------------------------||
   tiempo_en_proc_3() {
 
-    let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
+    if (this.enEjecucion) {
       this.context_3.fillStyle = this.estilo_3
       this.context_3.fillRect(this.t_total_3 * 2, 0, 2, 20)
 
-      if (!this.enEjecucion) {
-        timer.unsubscribe()
-      }
-    })
+      setTimeout(() => this.tiempo_en_proc_3(), 1000 * 1 / this.tiempo_simulacion)
+    }
   }
 
   // ||---------------------------------------OTRAS OPERACIONES----------------------------||
