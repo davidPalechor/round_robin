@@ -272,7 +272,7 @@ def procesador_1(tiempo, quantum, recurso):
         print en_uso
     else:
         while recurso not in disponibles:
-            time.sleep(4)
+            time.sleep(1)
 
     evento = th.Event()
     inicio = time.time()
@@ -311,7 +311,7 @@ def procesador_2(tiempo, quantum, recurso):
         print en_uso
     else:
         while recurso not in disponibles:
-            time.sleep(4)
+            time.sleep(1)
 
     inicio = time.time()
     print "PROCESADOR 2: " + proceso
@@ -347,7 +347,7 @@ def procesador_3(tiempo, quantum, recurso):
         print en_uso
     else:
         while recurso not in disponibles:
-            time.sleep(4)
+            time.sleep(1)
 
     inicio = time.time()
     print "PROCESADOR 3: " + proceso

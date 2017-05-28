@@ -62,6 +62,10 @@ export class SjfComponent implements OnInit {
 
   // OTRAS VARIABLES
 
+  private enEspera_1 = 0
+  private enEspera_2 = 0
+  private enEspera_3 = 0
+
   private tiempo_simulacion = 1
   private items_recursos = []
 
@@ -118,6 +122,10 @@ export class SjfComponent implements OnInit {
   }
 
   prepararCanvas() {
+    this.t_total = 0
+    this.t_total_2 = 0
+    this.t_total_3 = 0
+
     this.canvas = this.gant_p1.nativeElement
     this.context = this.canvas.getContext("2d");
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -174,6 +182,21 @@ export class SjfComponent implements OnInit {
     this.sjfService.postEjecutarProcesos()
   }
 
+  indexBloqueado(lista, elemento) {
+    let i = 0
+    if (lista.length == 0) {
+      return -1
+    }
+    while (elemento != lista[i]) {
+      i += 1
+      if (i > lista.length) {
+        i -= 1
+        break;
+      }
+    }
+    return i
+  }
+
   indexRecurso(lista, elemento) {
     let i = 0
     if (lista.length == 0) {
@@ -212,10 +235,30 @@ export class SjfComponent implements OnInit {
     this.enEjecucion = false
   }
 
+  ordenarCola(lista) {
+    var vec = lista;
+    var aux, p, j, t;
+    for (var i = 1; i < lista.length; i++) {
+      aux = lista[i];
+      t = lista[i].tiempo;
+      j = i - 1;
+      while (j >= 0 && t < lista[j].tiempo) {
+        lista[j + 1] = lista[j];
+        j--;
+      }
+      lista[j + 1] = aux;
+    }
+    console.log("COLA ORDENADA: ", lista);
+    return lista
+  }
+
+
   startProcesador_1() {
     this.t_bloqueado = 0
     let timer = setInterval(() => {
       // this.t_total += 1;
+      this.listos = this.ordenarCola(this.listos);
+      console.log(this.listos)
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
@@ -225,7 +268,7 @@ export class SjfComponent implements OnInit {
           this.t_total += 1
           this.postEjecutarProcesos()
           this.ejecucion.push(this.listos.shift())
-          this.cont -= 1;
+          if (this.enEspera_2 == 0) { this.enEspera_1 = 0 }
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion[0].recurso)
           var bloq;
           if (index > -1) {
@@ -234,13 +277,17 @@ export class SjfComponent implements OnInit {
           } else {
             this.estilo = "#FF0000"
             this.bloqueado.push(this.ejecucion.shift())
+            this.enEspera_1 = 1
             this.t_bloqueado += 1;
           }
         }
         if (this.bloqueado.length > 0) {
-          index = this.indexRecurso(this.recurso_disponible, this.bloqueado[0].recurso)
-          if (index > -1) {
-            this.listos.push(this.bloqueado.shift())
+          for (let i = 0; i < this.bloqueado.length; i++) {
+            index = this.indexRecurso(this.recurso_disponible, this.bloqueado[i].recurso)
+            var aux = this.indexBloqueado(this.bloqueado, this.bloqueado[i]);
+            if (index > -1) {
+              this.listos.push(this.bloqueado.splice(aux, 1)[0])
+            }
           }
           this.t_bloqueado += 1;
           this.t_total += 1;
@@ -264,6 +311,9 @@ export class SjfComponent implements OnInit {
   startProcesador_2() {
     this.t_bloqueado_2 = 0
     let timer = setInterval(() => {
+
+      this.listos_2 = this.ordenarCola(this.listos_2);
+
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
@@ -274,6 +324,7 @@ export class SjfComponent implements OnInit {
           this.t_total_2 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_2.push(this.listos_2.shift())
+          if (this.enEspera_1 == 0) { this.enEspera_2 = 0 }
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
           var bloq;
           if (index > -1) {
@@ -282,12 +333,16 @@ export class SjfComponent implements OnInit {
           } else {
             this.estilo_2 = "#FF0000"
             this.bloqueado_2.push(this.ejecucion_2.shift())
+            this.enEspera_2 = 1;
           }
         }
         if (this.bloqueado_2.length > 0) {
-          index = this.indexRecurso(this.recurso_disponible, this.bloqueado_2[0].recurso)
-          if (index > -1) {
-            this.listos_2.push(this.bloqueado_2.shift())
+          for (let i = 0; i < this.bloqueado_2.length; i++) {
+            index = this.indexRecurso(this.recurso_disponible, this.bloqueado_2[i].recurso)
+            var aux = this.indexBloqueado(this.bloqueado_2, this.bloqueado_2[i]);
+            if (index > -1) {
+              this.listos_2.push(this.bloqueado_2.splice(aux, 1)[0])
+            }
           }
           this.t_bloqueado_2 += 1;
           this.t_total_2 += 1;
@@ -311,13 +366,13 @@ export class SjfComponent implements OnInit {
   startProcesador_3() {
     this.t_bloqueado_3 = 0
     let timer = setInterval(() => {
+      this.listos_3 = this.ordenarCola(this.listos_3);
       if (!this.enEjecucion) {
         clearInterval(timer)
       }
 
       if (this.ejecucion_3.length == 0) {
         if (this.listos_3.length > 0) {
-
           this.t_total_3 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_3.shift())
@@ -333,9 +388,12 @@ export class SjfComponent implements OnInit {
           }
         }
         if (this.bloqueado_3.length > 0) {
-          index = this.indexRecurso(this.recurso_disponible, this.bloqueado_3[0].recurso)
-          if (index > -1) {
-            this.listos_3.push(this.bloqueado_3.shift())
+          for (let i = 0; i < this.bloqueado_3.length; i++) {
+            index = this.indexRecurso(this.recurso_disponible, this.bloqueado_3[i].recurso)
+            var aux = this.indexBloqueado(this.bloqueado_3, this.bloqueado_3[i]);
+            if (index > -1) {
+              this.listos_3.push(this.bloqueado_3.splice(aux, 1)[0])
+            }
           }
           this.t_bloqueado_3 += 1;
           this.t_total_3 += 1;
@@ -358,7 +416,7 @@ export class SjfComponent implements OnInit {
   getInfoListos() {
     this.sjfService.getInfoListos()
       .then(data => {
-        console.log("[COLA LISTOS] ", data[0], data[0].tiempo)
+        console.log("[COLA LISTOS] ", data[0])
         this.listos = data[0]
         this.cont = data[0].length
 
@@ -470,7 +528,7 @@ export class SjfComponent implements OnInit {
 
     let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
       this.context_3.fillStyle = this.estilo_3
-      this.context_3.fillRect(this.t_total * 2, 0, 2, 20)
+      this.context_3.fillRect(this.t_total_3 * 2, 0, 2, 20)
 
       if (!this.enEjecucion) {
         timer.unsubscribe()
@@ -503,7 +561,7 @@ export class SjfComponent implements OnInit {
 
     document.setTextColor(105, 156, 175)
     document.setFontSize(20)
-    document.text("ALGORITMO DE PLANIFICACIÓN ROUND ROBIN", 20, 20)
+    document.text("ALGORITMO DE PLANIFICACIÓN SJF", 20, 20)
 
     //CUERPO
     document.setFontSize(16);
@@ -516,6 +574,24 @@ export class SjfComponent implements OnInit {
     document.text(20, 60, "Promedio de tiempos en procesador: " + prom_procesador.toString() + " segundos")
     document.text(20, 70, "Promedio de tiempos en sección crítica: " + prom_cpu.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento * 100 + "%", 20, 80)
+
+    if (rendimiento > 0.40 && rendimiento < 0.70) {
+      document.setTextColor(255, 0, 0)
+      document.text("Malo", 140, 80)
+    }
+
+    if (rendimiento > 0.70 && rendimiento < 0.80) {
+      document.setTextColor(255, 158, 74)
+      document.text("Medio", 140, 80)
+    }
+
+    if (rendimiento > 0.80) {
+
+      document.setTextColor(0, 255, 0)
+      document.text("Bueno", 140, 80)
+    }
+
+    document.setTextColor(0, 0, 0)
     document.text("Total procesos: " + this.total_procesos.length.toString(), 20, 90)
 
     document.setFontSize(16);
@@ -528,6 +604,24 @@ export class SjfComponent implements OnInit {
     document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_2.toString() + " segundos", 20, 120)
     document.text(20, 130, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 140)
+
+    if (rendimiento_2 > 0.40 && rendimiento_2 < 0.70) {
+
+      document.setTextColor(255, 0, 0)
+      document.text("Malo", 140, 140)
+    }
+
+    if (rendimiento_2 > 0.70 && rendimiento_2 < 0.80) {
+      document.setTextColor(255, 158, 74)
+      document.text("Medio", 140, 140)
+    }
+
+    if (rendimiento_2 > 0.80) {
+      document.setTextColor(0, 255, 0)
+      document.text("Bueno", 140, 140)
+    }
+
+    document.setTextColor(0, 0, 0)
     document.text("Total procesos: " + this.total_procesos_2.length.toString(), 20, 150)
 
     document.setFontSize(16);
@@ -540,6 +634,24 @@ export class SjfComponent implements OnInit {
     document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_3.toString() + " segundos", 20, 180)
     document.text(20, 190, "Promedio de tiempos en procesador: " + this.t_total_3.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento_3 * 100 + "%", 20, 200)
+    if (rendimiento_3 > 0.40 && rendimiento_3 < 0.70) {
+
+      document.setTextColor(255, 0, 0)
+      document.text("Malo", 140, 200)
+    }
+
+    if (rendimiento_3 > 0.70 && rendimiento_3 < 0.80) {
+      document.setTextColor(255, 158, 74)
+      document.text("Medio", 140, 200)
+    }
+
+    if (rendimiento_3 > 0.80) {
+
+      document.setTextColor(0, 255, 0)
+      document.text("Bueno", 140, 200)
+    }
+
+    document.setTextColor(0, 0, 0)
     document.text("Total procesos: " + this.total_procesos_3.length.toString(), 20, 210)
 
     //ARCHIVO
