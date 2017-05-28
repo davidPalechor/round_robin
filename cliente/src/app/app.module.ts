@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 //Servicios
 import { RoundrobinService } from './services/roundrobin.service';
 import { SjfService } from './services/sjf.service';
+import { SrtfService} from './services/srtf.service';
 
 
 //Componentes
@@ -16,13 +17,15 @@ import { AppComponent } from './app.component';
 import { LandingComponent } from './landing/landing.component';
 import { RoundrobinComponent } from './roundrobin/roundrobin.component';
 import { SjfComponent } from './sjf/sjf.component';
+import { SRTFComponent } from './srtf/srtf.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LandingComponent,
     RoundrobinComponent,
-    SjfComponent
+    SjfComponent,
+    SRTFComponent
   ],
 
   imports: [
@@ -33,7 +36,8 @@ import { SjfComponent } from './sjf/sjf.component';
   ],
   providers: [
     RoundrobinService,
-    SjfService
+    SjfService,
+    SrtfService
    ],
   bootstrap: [AppComponent]
 })

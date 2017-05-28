@@ -1,23 +1,26 @@
 <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="">Inicio</a>
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="">Inicio</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="hidden">
+                <a routerLink="/inicio">Inicio</a>
+            </li>
+            <li class="page-scroll">
+                <a routerLink="/round_robin" routerLinkActive='active'>Round Robin</a>
+            </li>
+            <li class="page-scroll">
+                <a routerLink="/sjf" routerLinkActive='active'>SJF</a>
+            </li>
+            <li class="page-scroll">
+                <a routerLink="/srtf" routerLinkActive='active'>SJF</a>
+            </li>
+        </ul>
     </div>
-    <ul class="nav navbar-nav">
-      <li class="hidden">
-        <a routerLink = "/inicio">Inicio</a>
-      </li>
-      <li class="page-scroll">
-        <a routerLink="/round_robin" routerLinkActive='active'>Round Robin</a>
-      </li>
-      <li class="page-scroll">
-        <a routerLink="/sjf" routerLinkActive='active'>SJF</a>
-      </li>
-    </ul>
-  </div>
 </nav>
 <section>
-  <div class="container-fluid">
-    <router-outlet></router-outlet>
-  </div>
+    <div class="container-fluid">
+        <router-outlet></router-outlet>
+    </div>
 </section>
