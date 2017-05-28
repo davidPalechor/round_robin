@@ -1,4 +1,4 @@
-# Algoritmos de Planificación: Round Robin, SJF, SRTF, Multicolas Retroalimentads
+# Algoritmos de Planificación: Round Robin, SJF, SRTF, Multicolas Retroalimentadas
 
 ## Prerequisitos
 * Node.js
