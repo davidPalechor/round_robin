@@ -10,6 +10,9 @@ export class SrtfService {
   private urlGetEjecutados = 'http://localhost:8000/srtf/lista_ejecutados/'
   private urlRecursos = 'http://localhost:8000/srtf/recursos/'
   private urlGetTerminados = 'http://localhost:8000/srtf/lista_terminados/'
+  private urlNotificarSuspendido = 'http://localhost:8000/srtf/notificar_suspendido/'
+  private urlNotificarSuspendido_2 = 'http://localhost:8000/srtf/notificar_suspendido_2/'
+  private urlNotificarSuspendido_3 = 'http://localhost:8000/srtf/notificar_suspendido_3/'
 
   constructor(private http: Http) { }
 
@@ -32,6 +35,36 @@ export class SrtfService {
       .toPromise()
       .then(response => response.json())
       .catch(this.handleError);
+  }
+
+  postNotificarSuspendido() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlNotificarSuspendido, options)
+      .toPromise()
+      .then(() => console.log("[Servicio]:Estado Notificado: suspendido"))
+      .catch(this.handleError)
+  }
+
+  postNotificarSuspendido_2() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlNotificarSuspendido_2, options)
+      .toPromise()
+      .then(() => console.log("[Servicio Proc_2]:Estado Notificado: suspendido"))
+      .catch(this.handleError)
+  }
+
+  postNotificarSuspendido_3() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlNotificarSuspendido_3, options)
+      .toPromise()
+      .then(() => console.log("[Servicio Proc_3]:Estado Notificado: suspendido"))
+      .catch(this.handleError)
   }
 
   postAgregarProceso(attr: Object): Promise<any> {

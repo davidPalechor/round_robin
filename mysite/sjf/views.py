@@ -1,6 +1,6 @@
 import json
 import datetime
-import time
+import time as t
 import threading as th
 import Queue as q
 import math
@@ -47,8 +47,6 @@ def sjf(request):
         try:
             respuesta = [[], [], []]
 
-            # for cell in listos:
-            #     cola_int.put((cell['quantum'], cell))
             index = listos.cab
             while index is not None:
                 respuesta[0].append(index.info)
@@ -64,8 +62,8 @@ def sjf(request):
                 respuesta[2].append(index.info)
                 index = index.sig
 
-        except:
-            return HttpResponseBadRequest('Bad request')
+        except Exception as e:
+            return HttpResponseBadRequest('Bad request ' + str(e))
         # print "METHOD GET ", respuesta
         return JsonResponse(respuesta, safe=False)
     else:
@@ -109,6 +107,19 @@ def sjf(request):
         except:
             return HttpResponseBadRequest('Bad request')
 
+def organizarColas(cola):
+    raiz = cola.cab
+    while raiz is not None:
+        aux = raiz.sig
+        while aux is not None:
+            if aux.info['tiempo'] < raiz.info['tiempo']:
+                nodo = Nodo()
+                nodo.info = raiz.info
+                raiz.info = aux.info
+                aux.info = nodo.info
+            aux = aux.sig
+        raiz = raiz.sig
+    return cola
 
 def listaListos(request):
     try:
@@ -148,14 +159,17 @@ def ejecutarHilos(request):
             global ejecutados_p1
             global listos
 
+            organizarColas(listos)
             if listos.cab is not None:
                 ejecutados_p1.push(listos.pop())
                 ejecutados_p1.cab.info['estado'] = "ejecucion"
 
+            organizarColas(listos_p2)
             if listos_p2.cab is not None:
                 ejecutados_p2.push(listos_p2.pop())
                 ejecutados_p2.cab.info['estado'] = 'ejecucion'
-            
+
+            organizarColas(listos_p3)
             if listos_p3.cab is not None:
                 ejecutados_p3.push(listos_p3.pop())
                 ejecutados_p3.cab.info['estado'] = 'ejecucion'
@@ -249,6 +263,38 @@ def listarTerminados(request):
         except:
             return HttpResponseBadRequest("Error interno")
 
+def actualizarEstado(request):
+    if request.method == "POST":
+        try:
+            global ejecutados_p1
+            global ejecutados_p2
+            if ejecutados_p1.cab is not None:
+                ejecutados_p1.cab.info['estado'] = "suspendido"
+            return HttpResponse("[SERV] Estado actualizado")
+        except:
+            return HttpResponseBadRequest("No se pudo actualizar")
+
+def actualizarEstado_2(request):
+    if request.method == "POST":
+        try:
+            global ejecutados_p2
+            if ejecutados_p2.cab is not None:
+                ejecutados_p2.cab.info['estado'] = "suspendido"
+            return HttpResponse("[SERV] Estado actualizado")
+        except:
+            return HttpResponseBadRequest("No se pudo actualizar")
+
+def actualizarEstado_3(request):
+    if request.method == "POST":
+        try:
+            global ejecutados_p3
+            if ejecutados_p3.cab is not None:
+                ejecutados_p3.cab.info['estado'] = "suspendido"
+            return HttpResponse("[SERV] Estado actualizado")
+        except:
+            return HttpResponseBadRequest("No se pudo actualizar")
+
+
 
 def procesador_1(tiempo, quantum, recurso):
     # RECURSOS
@@ -272,16 +318,14 @@ def procesador_1(tiempo, quantum, recurso):
         print en_uso
     else:
         while recurso not in disponibles:
-            time.sleep(1)
+            t.sleep(1)
 
-    evento = th.Event()
     inicio = time.time()
     print "PROCESADOR 1: " + proceso
     fin = 1000000000
     seg = 0
     while seg < tiempo:
         fin = time.time()
-        # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
     terminados.push(ejecutados_p1.pop())

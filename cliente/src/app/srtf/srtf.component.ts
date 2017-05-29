@@ -249,12 +249,11 @@ export class SrtfComponent implements OnInit {
     return lista
   }
 
-
   startProcesador_1() {
     this.t_bloqueado = 0
     if (this.enEjecucion) {
       this.listos = this.ordenarCola(this.listos);
-      
+
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
           this.t_total += 1
@@ -289,23 +288,32 @@ export class SrtfComponent implements OnInit {
         this.tiempo_ejecucion += 1;
         this.t_cpu += 1;
         this.t_total += 1;
-        if (this.tiempo_ejecucion == this.ejecucion[0].tiempo) {
+        this.ejecucion[0].tiempo -= 1
+        if (this.listos.length > 0) {
+          if (this.ejecucion[0].tiempo > this.listos[0].tiempo) {
+            this.suspendido.push(this.ejecucion.pop())
+            this.notificarSuspendido()
+            this.ejecucion.push(this.listos.pop())
+          }
+        }
+        if (this.ejecucion[0].tiempo == 0) {
           this.terminado.push(this.ejecucion.shift())
           this.tiempo_ejecucion = 0;
           this.recurso_disponible.push(this.recurso_en_uso.shift())
           console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
+
         }
       }
-      // }, 1000 * 1 / this.tiempo_simulacion)
 
       setTimeout(() => this.startProcesador_1(), 1000 * 1 / this.tiempo_simulacion)
     }
   }
 
 
+
   startProcesador_2() {
     this.t_bloqueado_2 = 0
-    if(this.enEjecucion){
+    if (this.enEjecucion) {
 
       this.listos_2 = this.ordenarCola(this.listos_2);
 
@@ -343,7 +351,15 @@ export class SrtfComponent implements OnInit {
         this.estilo_2 = "#00FF00"
         this.tiempo_ejecucion_2 += 1;
         this.t_cpu_2 += 1;
-        if (this.tiempo_ejecucion_2 == this.ejecucion_2[0].tiempo) {
+        this.ejecucion_2[0] -= 1;
+        if (this.listos_2.length > 0) {
+          if (this.ejecucion_2[0].tiempo > this.listos_2[0].tiempo) {
+            this.suspendido_2.push(this.ejecucion_2.pop())
+            this.notificarSuspendido()
+            this.ejecucion_2.push(this.listos_2.pop())
+          }
+        }
+        if (this.ejecucion_2[0].tiempo == 0) {
           this.terminado_2.push(this.ejecucion_2.shift())
           this.tiempo_ejecucion_2 = 0;
           this.recurso_disponible.push(this.recurso_en_uso.shift())
@@ -358,9 +374,9 @@ export class SrtfComponent implements OnInit {
 
   startProcesador_3() {
     this.t_bloqueado_3 = 0
-    if(this.enEjecucion){
+    if (this.enEjecucion) {
       this.listos_3 = this.ordenarCola(this.listos_3);
-   
+
       if (this.ejecucion_3.length == 0) {
         if (this.listos_3.length > 0) {
           this.t_total_3 += 1;
@@ -393,6 +409,14 @@ export class SrtfComponent implements OnInit {
         this.estilo_3 = "#00FF00"
         this.tiempo_ejecucion_3 += 1;
         this.t_cpu_3 += 1;
+        this.ejecucion_3[0] -= 1
+        if (this.listos_2.length > 0) {
+          if (this.ejecucion_2[0].tiempo > this.listos_2[0].tiempo) {
+            this.suspendido_2.push(this.ejecucion_2.pop())
+            this.notificarSuspendido()
+            this.ejecucion_2.push(this.listos_2.pop())
+          }
+        }
         if (this.tiempo_ejecucion_3 == this.ejecucion_3[0].tiempo) {
           this.terminado_3.push(this.ejecucion_3.shift())
           this.tiempo_ejecucion_3 = 0;
@@ -401,7 +425,7 @@ export class SrtfComponent implements OnInit {
         }
       }
 
-      setTimeout(() => this.startProcesador_3(),1000 * 1 / this.tiempo_simulacion)
+      setTimeout(() => this.startProcesador_3(), 1000 * 1 / this.tiempo_simulacion)
     }
   }
   //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
@@ -469,6 +493,28 @@ export class SrtfComponent implements OnInit {
     }
   }
 
+  tiempo_en_suspendidos() {
+
+    this.estilo = "#FF9E4A"
+    var tiempo = 0
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
+      tiempo += 1
+      if (tiempo == 3) {
+        console.log("De suspendidos a Listos")
+        this.listos.push(this.suspendido.pop())
+        console.log(this.listos)
+        timer.unsubscribe()
+      }
+    })
+  }
+
+  notificarSuspendido() {
+    this.srtfService.postNotificarSuspendido()
+      .then(() => {
+        // this.listarSuspendido()
+        this.tiempo_en_suspendidos()
+      })
+  }
   // ||--------------------------------------------------------------------------------------||
   // ||------------------------------------------PROCESADOR 2--------------------------------||
   // ||--------------------------------------------------------------------------------------||
@@ -481,6 +527,29 @@ export class SrtfComponent implements OnInit {
 
       setTimeout(() => this.tiempo_en_proc_2(), 1000 * 1 / this.tiempo_simulacion)
     }
+  }
+
+  tiempo_en_suspendidos_2() {
+
+    this.estilo = "#FF9E4A"
+    var tiempo = 0
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
+      tiempo += 1
+      if (tiempo == 3) {
+        console.log("De suspendidos a Listos")
+        this.listos_2.push(this.suspendido_2.pop())
+        console.log(this.listos_2)
+        timer.unsubscribe()
+      }
+    })
+  }
+
+  notificarSuspendido_2() {
+    this.srtfService.postNotificarSuspendido_2()
+      .then(() => {
+        // this.listarSuspendido()
+        this.tiempo_en_suspendidos_2()
+      })
   }
 
   // |--------------------------------------------------------------------------------------||
@@ -496,6 +565,28 @@ export class SrtfComponent implements OnInit {
     }
   }
 
+tiempo_en_suspendidos_3() {
+
+    this.estilo = "#FF9E4A"
+    var tiempo = 0
+    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
+      tiempo += 1
+      if (tiempo == 3) {
+        console.log("De suspendidos a Listos")
+        this.listos_3.push(this.suspendido_3.pop())
+        console.log(this.listos_3)
+        timer.unsubscribe()
+      }
+    })
+  }
+
+  notificarSuspendido_3() {
+    this.srtfService.postNotificarSuspendido_3()
+      .then(() => {
+        // this.listarSuspendido()
+        this.tiempo_en_suspendidos_3()
+      })
+  }
   // ||---------------------------------------OTRAS OPERACIONES----------------------------||
 
 
@@ -565,13 +656,13 @@ export class SrtfComponent implements OnInit {
     document.text(20, 130, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 140)
 
-    if (rendimiento_2 > 0.40 && rendimiento_2 < 0.70) {
+    if (rendimiento_2 > 0.40 && rendimiento_2 < 0.65) {
 
       document.setTextColor(255, 0, 0)
       document.text("Malo", 140, 140)
     }
 
-    if (rendimiento_2 > 0.70 && rendimiento_2 < 0.80) {
+    if (rendimiento_2 > 0.65 && rendimiento_2 < 0.80) {
       document.setTextColor(255, 158, 74)
       document.text("Medio", 140, 140)
     }
