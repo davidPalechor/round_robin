@@ -428,34 +428,6 @@ export class SjfComponent implements OnInit {
       })
   }
 
-  listarEjecucion() {
-    this.sjfService.getInfoEjecucion()
-      .then(data => {
-        // this.ejecucion = data[0]
-
-        this.listos.reverse()
-        if (this.listos.length > 0) {
-          this.ejecucion.push(this.listos.pop())
-        }
-        console.log("EJECUTANDOSE: ", this.ejecucion)
-        if (this.ejecucion.length > 0) {
-          this.t_quantum = this.ejecucion[0].quantum
-          this.t_proceso = this.ejecucion[0].tiempo
-        }
-
-        this.listos_2.reverse()
-        if (this.listos_2.length > 0) {
-          this.ejecucion_2.push(this.listos_2.pop())
-        }
-        console.log("EJECUTANDOSE: ", this.ejecucion)
-        if (this.ejecucion_2.length > 0) {
-          this.t_quantum_2 = this.ejecucion_2[0].quantum
-          this.t_proceso_2 = this.ejecucion_2[0].tiempo
-        }
-      })
-  }
-
-
   listarListos() {
     this.sjfService.getListaListos()
       .then(data => { this.listos = data })

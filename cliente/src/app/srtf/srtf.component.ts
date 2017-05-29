@@ -6,7 +6,7 @@ import * as jsPDF from 'jspdf';
 @Component({
   selector: 'app-srtf',
   templateUrl: './srtf.component.html',
-  styleUrls: ['./sjf.component.css']
+  styleUrls: ['./srtf.component.css']
 })
 export class SrtfComponent implements OnInit {
   title = "Shortest Remaining Time First SRTF"
@@ -16,6 +16,7 @@ export class SrtfComponent implements OnInit {
   private listos = []
   private ejecucion = []
   private bloqueado = []
+  private suspendido = []
   private terminado = []
   private total_procesos = []
   private cont = 0
@@ -32,13 +33,13 @@ export class SrtfComponent implements OnInit {
   private listos_2 = []
   private ejecucion_2 = []
   private bloqueado_2 = []
+  private suspendido_2 = []
   private terminado_2 = []
   private total_procesos_2 = []
   private cont_2 = 0
   private timer_2
 
   private t_proceso_2 = 0
-  private t_quantum_2 = 0
   private tiempo_ejecucion_2 = 0
   private t_bloqueado_2 = 0
   private t_total_2 = 0
@@ -49,13 +50,13 @@ export class SrtfComponent implements OnInit {
   private ejecucion_3 = []
   private bloqueado_3 = []
   private terminado_3 = []
+  private suspendido_3 = []
   private total_procesos_3 = []
   private cont_3 = 0
   private timer_3
 
   private t_bloqueado_3 = 0
   private t_proceso_3 = 0
-  private t_quantum_3 = 0
   private tiempo_ejecucion_3 = 0
   private t_total_3 = 0
   private t_cpu_3 = 0
@@ -251,16 +252,9 @@ export class SrtfComponent implements OnInit {
 
   startProcesador_1() {
     this.t_bloqueado = 0
-
-    // let timer = setInterval(() => {
-    // this.t_total += 1;
-
     if (this.enEjecucion) {
       this.listos = this.ordenarCola(this.listos);
-      // if (!this.enEjecucion) {
-      //   clearInterval(timer)
-      // }
-
+      
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
           this.t_total += 1
@@ -428,32 +422,6 @@ export class SrtfComponent implements OnInit {
       })
   }
 
-  listarEjecucion() {
-    this.srtfService.getInfoEjecucion()
-      .then(data => {
-        // this.ejecucion = data[0]
-
-        this.listos.reverse()
-        if (this.listos.length > 0) {
-          this.ejecucion.push(this.listos.pop())
-        }
-        console.log("EJECUTANDOSE: ", this.ejecucion)
-        if (this.ejecucion.length > 0) {
-          this.t_quantum = this.ejecucion[0].quantum
-          this.t_proceso = this.ejecucion[0].tiempo
-        }
-
-        this.listos_2.reverse()
-        if (this.listos_2.length > 0) {
-          this.ejecucion_2.push(this.listos_2.pop())
-        }
-        console.log("EJECUTANDOSE: ", this.ejecucion)
-        if (this.ejecucion_2.length > 0) {
-          this.t_quantum_2 = this.ejecucion_2[0].quantum
-          this.t_proceso_2 = this.ejecucion_2[0].tiempo
-        }
-      })
-  }
 
 
   listarListos() {

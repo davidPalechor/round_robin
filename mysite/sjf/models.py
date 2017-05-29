@@ -5,18 +5,6 @@ from django.db import models
 import threading as th
 
 
-class Proceso(th.Thread):
-    def __init__(self, tiempo, quantum, estado, nombre):
-        th.Thread.__init__(self)
-        self.tiempo = tiempo
-        self.quantum = quantum
-        self.estado = estado
-        self.nombre = nombre
-        self.condParada = th.Event()
-
-    def run(self):
-        print "Hilo creado"
-
 class Nodo():
     def __init__(self):
         self.info = []

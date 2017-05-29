@@ -17,7 +17,7 @@ import { AppComponent } from './app.component';
 import { LandingComponent } from './landing/landing.component';
 import { RoundrobinComponent } from './roundrobin/roundrobin.component';
 import { SjfComponent } from './sjf/sjf.component';
-import { SRTFComponent } from './srtf/srtf.component';
+import { SrtfComponent } from './srtf/srtf.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +25,7 @@ import { SRTFComponent } from './srtf/srtf.component';
     LandingComponent,
     RoundrobinComponent,
     SjfComponent,
-    SRTFComponent
+    SrtfComponent
   ],
 
   imports: [
