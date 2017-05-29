@@ -26,6 +26,7 @@ export class SrtfComponent implements OnInit {
   private t_quantum = 0
   private tiempo_ejecucion = 0
   private t_bloqueado = 0
+  private t_suspendido = 3
   private t_total = 0
   private t_cpu = 0
 
@@ -35,6 +36,7 @@ export class SrtfComponent implements OnInit {
   private bloqueado_2 = []
   private suspendido_2 = []
   private terminado_2 = []
+  private t_suspendido_2 = 3
   private total_procesos_2 = []
   private cont_2 = 0
   private timer_2
@@ -56,6 +58,7 @@ export class SrtfComponent implements OnInit {
   private timer_3
 
   private t_bloqueado_3 = 0
+  private t_suspendido_3 = 3
   private t_proceso_3 = 0
   private tiempo_ejecucion_3 = 0
   private t_total_3 = 0
@@ -84,7 +87,6 @@ export class SrtfComponent implements OnInit {
     tiempo: null,
     nombre: null,
     recurso: null,
-    quantum: 0,
     procesador: 1,
     estado: 'ejecucion'
   }
@@ -351,7 +353,7 @@ export class SrtfComponent implements OnInit {
         this.estilo_2 = "#00FF00"
         this.tiempo_ejecucion_2 += 1;
         this.t_cpu_2 += 1;
-        this.ejecucion_2[0] -= 1;
+        this.ejecucion_2[0].tiempo -= 1;
         if (this.listos_2.length > 0) {
           if (this.ejecucion_2[0].tiempo > this.listos_2[0].tiempo) {
             this.suspendido_2.push(this.ejecucion_2.pop())
@@ -409,12 +411,12 @@ export class SrtfComponent implements OnInit {
         this.estilo_3 = "#00FF00"
         this.tiempo_ejecucion_3 += 1;
         this.t_cpu_3 += 1;
-        this.ejecucion_3[0] -= 1
+        this.ejecucion_3[0].tiempo -= 1
         if (this.listos_2.length > 0) {
           if (this.ejecucion_2[0].tiempo > this.listos_2[0].tiempo) {
             this.suspendido_2.push(this.ejecucion_2.pop())
             this.notificarSuspendido()
-            this.ejecucion_2.push(this.listos_2.pop())
+            this.ejecucion_2.push(this.listos_2.shift())
           }
         }
         if (this.tiempo_ejecucion_3 == this.ejecucion_3[0].tiempo) {
@@ -496,9 +498,10 @@ export class SrtfComponent implements OnInit {
   tiempo_en_suspendidos() {
 
     this.estilo = "#FF9E4A"
-    var tiempo = 0
+    this.t_suspendido = 3
     let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
+      this.t_suspendido -= 1
       if (tiempo == 3) {
         console.log("De suspendidos a Listos")
         this.listos.push(this.suspendido.pop())
@@ -532,9 +535,10 @@ export class SrtfComponent implements OnInit {
   tiempo_en_suspendidos_2() {
 
     this.estilo = "#FF9E4A"
-    var tiempo = 0
+    this.t_suspendido_2 = 3
     let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
+      this.t_suspendido_2 -= 1
       if (tiempo == 3) {
         console.log("De suspendidos a Listos")
         this.listos_2.push(this.suspendido_2.pop())
@@ -568,9 +572,10 @@ export class SrtfComponent implements OnInit {
 tiempo_en_suspendidos_3() {
 
     this.estilo = "#FF9E4A"
-    var tiempo = 0
+    this.t_suspendido_3 = 3
     let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
+      this.t_suspendido -= 1
       if (tiempo == 3) {
         console.log("De suspendidos a Listos")
         this.listos_3.push(this.suspendido_3.pop())

@@ -85,29 +85,25 @@ def srtf(request):
             context['recurso'] = recurso
             context['procesador'] = procesador
             context['estado'] = estado
-            context['quantum'] = tiempo
 
             proceso = Nodo()
 
             if int(procesador) == 1:
-                context['quantum'] = calcularQuantum(listos, tiempo)
                 proceso.info = context
                 print "Proceso a Procesador 1"
                 listos.push(proceso)
             if int(procesador) == 2:
-                context['quantum'] = calcularQuantum(listos_p2, tiempo)
                 proceso.info = context
-                print "Proceso a Procesadro 2"
+                print "Proceso a Procesador 2"
                 listos_p2.push(proceso)
             
             if int(procesador) == 3:
-                context['quantum'] = calcularQuantum(listos_p3, tiempo)
                 proceso.info = context
-                print "Proceso a Procesadro 3"
+                print "Proceso a Procesador 3"
                 listos_p3.push(proceso)
 
             crearHilo(context['nombre'], context['tiempo'],
-                      context['recurso'], context['procesador'], context['quantum'])
+                      context['recurso'], context['procesador'])
             return HttpResponse("Success!")
         except:
             return HttpResponseBadRequest('Bad request')
@@ -136,24 +132,24 @@ def listaListos(request):
         return HttpResponseBadRequest("Error en la lista")
 
 
-def crearHilo(nombre, tiempo, recurso, procesador, quantum):
+def crearHilo(nombre, tiempo, recurso, procesador):
     global cola_hilos
     print "Creando Hilo " + nombre
 
     if int(procesador) == 1:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_1,
-                              name=nombre, args=(tiempo, quantum, recurso,))
+                              name=nombre, args=(tiempo, recurso,))
         cola_hilos.push(hilo)
     elif int(procesador) == 2:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_2,
-                              name=nombre, args=(tiempo, quantum, recurso,))
+                              name=nombre, args=(tiempo, recurso,))
         cola_hilos.push(hilo)
     else:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_3,
-                              name=nombre, args=(tiempo, quantum, recurso,))
+                              name=nombre, args=(tiempo, recurso,))
         cola_hilos.push(hilo)
 
 
@@ -326,7 +322,7 @@ def actualizarEstado_3(request):
 
 
 
-def procesador_1(tiempo, quantum, recurso):
+def procesador_1(tiempo, recurso):
     # RECURSOS
     global disponibles
     global en_uso
@@ -351,11 +347,10 @@ def procesador_1(tiempo, quantum, recurso):
             t.sleep(1)
 
     evento = th.Event()
-    inicio = time.time()
+    inicio = t.time()
     print "PROCESADOR 1: " + proceso
     fin = 1000000000
     seg = 0
-    t_restante = 0
     while seg < tiempo:
         if ejecutados_p1.cab is not None:
             estado = ejecutados_p1.cab.info['estado']
@@ -372,7 +367,7 @@ def procesador_1(tiempo, quantum, recurso):
             estado = 'listo'
 
             ejecutados_p1.push(listos.pop())
-        fin = time.time()
+        fin = t.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
@@ -382,7 +377,7 @@ def procesador_1(tiempo, quantum, recurso):
     return
 
 
-def procesador_2(tiempo, quantum, recurso):
+def procesador_2(tiempo, recurso):
     # RECURSOS
     global disponibles
     global en_uso
@@ -407,7 +402,7 @@ def procesador_2(tiempo, quantum, recurso):
             t.sleep(1)
 
     evento = th.Event()
-    inicio = time.time()
+    inicio = t.time()
     print "PROCESADOR 2: " + proceso
     fin = 1000000000
     seg = 0
@@ -426,7 +421,7 @@ def procesador_2(tiempo, quantum, recurso):
             listos_p2.push(suspendidos_p2.pop())
             listos_p2.cab.info['estado'] = 'ejecucion'
 
-        fin = time.time()
+        fin = t.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 
@@ -436,7 +431,7 @@ def procesador_2(tiempo, quantum, recurso):
     return
 
 
-def procesador_3(tiempo, quantum, recurso):
+def procesador_3(tiempo, recurso):
      # RECURSOS
     global disponibles
     global en_uso
@@ -462,7 +457,7 @@ def procesador_3(tiempo, quantum, recurso):
             t.sleep(1)
 
     evento = th.Event()
-    inicio = time.time()
+    inicio = t.time()
     print "PROCESADOR 3: " + proceso
     fin = 1000000000
     seg = 0
@@ -484,7 +479,7 @@ def procesador_3(tiempo, quantum, recurso):
             listos_p3.cab.info['estado'] = 'ejecucion'
             listos.cab.info['quantum'] = quantum
 
-        fin = time.time()
+        fin = t.time()
         # print hilo + " " + str(fin - inicio)
         seg = round(fin - inicio)
 

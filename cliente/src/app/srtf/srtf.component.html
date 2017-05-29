@@ -157,6 +157,7 @@
                                     <th>Nombre</th>
                                     <th>Tiempo</th>
                                     <th>Recurso</th>
+                                    <th>Espera</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -164,6 +165,7 @@
                                     <td>{{item.nombre}}</td>
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
+                                    <td>{{t_suspendido}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -216,7 +218,7 @@
                         </thead>
                         <tbody>
                             <td>{{ejecucion_2[0].nombre}}</td>
-                            <td>{{ejecucion_2[0].tiempo - tiempo_ejecucion_2}}</td>
+                            <td>{{ejecucion_2[0].tiempo}}</td>
                             <td>{{ejecucion_2[0].recurso}}</td>
                         </tbody>
                     </table>
@@ -275,6 +277,7 @@
                                     <th>Nombre</th>
                                     <th>Tiempo</th>
                                     <th>Recurso</th>
+                                    <th>Espera</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -282,6 +285,7 @@
                                     <td>{{item.nombre}}</td>
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
+                                    <td>{{t_suspendido_2}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -333,7 +337,7 @@
                             </thead>
                             <tbody>
                                 <td>{{ejecucion_3[0].nombre}}</td>
-                                <td>{{ejecucion_3[0].tiempo - tiempo_ejecucion_3}}</td>
+                                <td>{{ejecucion_3[0].tiempo}}</td>
                                 <td>{{ejecucion_3[0].recurso}}</td>
                             </tbody>
                         </table>
@@ -392,6 +396,7 @@
                                         <th>Nombre</th>
                                         <th>Tiempo</th>
                                         <th>Recurso</th>
+                                        <th>Espera</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -399,6 +404,7 @@
                                         <td>{{item.nombre}}</td>
                                         <td>{{item.tiempo}}</td>
                                         <td>{{item.recurso}}</td>
+                                        <td>{{t_suspendido_3}}</td>
                                     </tr>
                                 </tbody>
                             </table>

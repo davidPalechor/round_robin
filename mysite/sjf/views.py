@@ -320,12 +320,12 @@ def procesador_1(tiempo, quantum, recurso):
         while recurso not in disponibles:
             t.sleep(1)
 
-    inicio = time.time()
+    inicio = t.time()
     print "PROCESADOR 1: " + proceso
     fin = 1000000000
     seg = 0
     while seg < tiempo:
-        fin = time.time()
+        fin = t.time()
         seg = round(fin - inicio)
 
     terminados.push(ejecutados_p1.pop())
@@ -355,14 +355,14 @@ def procesador_2(tiempo, quantum, recurso):
         print en_uso
     else:
         while recurso not in disponibles:
-            time.sleep(1)
+            t.sleep(1)
 
-    inicio = time.time()
+    inicio = t.time()
     print "PROCESADOR 2: " + proceso
     fin = 1000000000
     seg = 0
     while seg < tiempo:
-        fin = time.time()
+        fin = t.time()
         seg = round(fin - inicio)
 
     terminados_p2.push(ejecutados_p2.pop())
@@ -391,14 +391,14 @@ def procesador_3(tiempo, quantum, recurso):
         print en_uso
     else:
         while recurso not in disponibles:
-            time.sleep(1)
+            t.sleep(1)
 
-    inicio = time.time()
+    inicio = t.time()
     print "PROCESADOR 3: " + proceso
     fin = 1000000000
     seg = 0
     while seg < tiempo:
-        fin = time.time()
+        fin = t.time()
         seg = round(fin - inicio)
 
     terminados_p3.push(ejecutados_p3.pop())

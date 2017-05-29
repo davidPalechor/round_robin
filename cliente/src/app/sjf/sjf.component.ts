@@ -22,7 +22,6 @@ export class SjfComponent implements OnInit {
   private timer
 
   private t_proceso = 0
-  private t_quantum = 0
   private tiempo_ejecucion = 0
   private t_bloqueado = 0
   private t_total = 0
@@ -38,7 +37,6 @@ export class SjfComponent implements OnInit {
   private timer_2
 
   private t_proceso_2 = 0
-  private t_quantum_2 = 0
   private tiempo_ejecucion_2 = 0
   private t_bloqueado_2 = 0
   private t_total_2 = 0
@@ -55,7 +53,6 @@ export class SjfComponent implements OnInit {
 
   private t_bloqueado_3 = 0
   private t_proceso_3 = 0
-  private t_quantum_3 = 0
   private tiempo_ejecucion_3 = 0
   private t_total_3 = 0
   private t_cpu_3 = 0
@@ -251,15 +248,8 @@ export class SjfComponent implements OnInit {
 
   startProcesador_1() {
     this.t_bloqueado = 0
-
-    // let timer = setInterval(() => {
-    // this.t_total += 1;
-
     if (this.enEjecucion) {
       this.listos = this.ordenarCola(this.listos);
-      // if (!this.enEjecucion) {
-      //   clearInterval(timer)
-      // }
 
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
