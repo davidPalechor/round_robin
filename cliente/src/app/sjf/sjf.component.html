@@ -53,7 +53,7 @@
             </div>
             <div class="col-xs-4">
                 <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
-                <button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
+                <button class="btn btn-success" (click)="ejecutarProcesos()" [disabled]="enEjecucion" id="btn_proceso">Ejecutar</button>
             </div>
         </div>
         <div class="row">

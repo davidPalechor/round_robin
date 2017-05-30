@@ -258,15 +258,14 @@ export class SrtfComponent implements OnInit {
 
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
-          this.t_total += 1
           this.postEjecutarProcesos()
           this.ejecucion.push(this.listos.shift())
-          if (this.enEspera_2 == 0) { this.enEspera_1 = 0 }
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion[0].recurso)
           var bloq;
-          if (index > -1) {
+          if (index > -1 && this.enEspera_2 == 0) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            this.t_total += 1
           } else {
             this.estilo = "#FF0000"
             this.bloqueado.push(this.ejecucion.shift())
@@ -322,15 +321,15 @@ export class SrtfComponent implements OnInit {
       if (this.ejecucion_2.length == 0) {
         if (this.listos_2.length > 0) {
 
-          this.t_total_2 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_2.push(this.listos_2.shift())
-          if (this.enEspera_1 == 0) { this.enEspera_2 = 0 }
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
           var bloq;
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            this.t_total_2 += 1;
+            this.enEspera_2 = 0
           } else {
             this.estilo_2 = "#FF0000"
             this.bloqueado_2.push(this.ejecucion_2.shift())
@@ -381,7 +380,6 @@ export class SrtfComponent implements OnInit {
 
       if (this.ejecucion_3.length == 0) {
         if (this.listos_3.length > 0) {
-          this.t_total_3 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_3.shift())
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_3[0].recurso)
@@ -389,6 +387,7 @@ export class SrtfComponent implements OnInit {
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            this.t_total_3 += 1;
           } else {
             this.estilo_3 = "#FF0000"
             this.bloqueado_3.push(this.ejecucion_3.shift())
@@ -499,7 +498,7 @@ export class SrtfComponent implements OnInit {
 
     this.estilo = "#FF9E4A"
     this.t_suspendido = 3
-    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       this.t_suspendido -= 1
       if (tiempo == 3) {
@@ -536,7 +535,7 @@ export class SrtfComponent implements OnInit {
 
     this.estilo = "#FF9E4A"
     this.t_suspendido_2 = 3
-    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       this.t_suspendido_2 -= 1
       if (tiempo == 3) {
@@ -569,11 +568,11 @@ export class SrtfComponent implements OnInit {
     }
   }
 
-tiempo_en_suspendidos_3() {
+  tiempo_en_suspendidos_3() {
 
     this.estilo = "#FF9E4A"
     this.t_suspendido_3 = 3
-    let timer = Observable.timer(0, 1000*1/this.tiempo_simulacion).subscribe(tiempo => {
+    let timer = Observable.timer(0, 1000 * 1 / this.tiempo_simulacion).subscribe(tiempo => {
       tiempo += 1
       this.t_suspendido -= 1
       if (tiempo == 3) {

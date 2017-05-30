@@ -115,7 +115,7 @@ export class SjfComponent implements OnInit {
     this.getInfoListos()
     this.getRecursos()
     // this.listarEjecucion()
-    this.listarTerminados()
+    //this.listarTerminados()
   }
 
   prepararCanvas() {
@@ -157,7 +157,17 @@ export class SjfComponent implements OnInit {
       })
   }
 
+  inicializarVariables() {
+    this.t_total = 0
+    this.t_total_2 = 0
+    this.t_total_3 = 0
+    this.t_cpu = 0
+    this.t_cpu_2 = 0
+    this.t_cpu_3 = 0
+  }
+
   ejecutarProcesos() {
+    this.inicializarVariables()
     this.prepararCanvas()
     this.terminarEjecucion()
     this.enEjecucion = true
@@ -253,13 +263,12 @@ export class SjfComponent implements OnInit {
 
       if (this.ejecucion.length == 0) {
         if (this.listos.length > 0) {
-          this.t_total += 1
           this.postEjecutarProcesos()
           this.ejecucion.push(this.listos.shift())
-          if (this.enEspera_2 == 0) { this.enEspera_1 = 0 }
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion[0].recurso)
           var bloq;
-          if (index > -1) {
+          if (index > -1 && this.enEspera_2 == 0) {
+            this.t_total += 1;
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
           } else {
@@ -278,7 +287,7 @@ export class SjfComponent implements OnInit {
             }
           }
           this.t_bloqueado += 1;
-          this.t_total += 1;
+          this.t_total += 1
         }
       } else {
         this.estilo = "#00FF00"
@@ -292,8 +301,6 @@ export class SjfComponent implements OnInit {
           console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
         }
       }
-      // }, 1000 * 1 / this.tiempo_simulacion)
-
       setTimeout(() => this.startProcesador_1(), 1000 * 1 / this.tiempo_simulacion)
     }
   }
@@ -301,22 +308,22 @@ export class SjfComponent implements OnInit {
 
   startProcesador_2() {
     this.t_bloqueado_2 = 0
-    if(this.enEjecucion){
+    if (this.enEjecucion) {
 
       this.listos_2 = this.ordenarCola(this.listos_2);
 
       if (this.ejecucion_2.length == 0) {
         if (this.listos_2.length > 0) {
 
-          this.t_total_2 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_2.push(this.listos_2.shift())
-          if (this.enEspera_1 == 0) { this.enEspera_2 = 0 }
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
           var bloq;
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            this.enEspera_2 = 0
+            this.t_total_2 += 1;
           } else {
             this.estilo_2 = "#FF0000"
             this.bloqueado_2.push(this.ejecucion_2.shift())
@@ -354,12 +361,11 @@ export class SjfComponent implements OnInit {
 
   startProcesador_3() {
     this.t_bloqueado_3 = 0
-    if(this.enEjecucion){
+    if (this.enEjecucion) {
       this.listos_3 = this.ordenarCola(this.listos_3);
-   
+
       if (this.ejecucion_3.length == 0) {
         if (this.listos_3.length > 0) {
-          this.t_total_3 += 1;
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_3.shift())
           var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_3[0].recurso)
@@ -367,10 +373,13 @@ export class SjfComponent implements OnInit {
           if (index > -1) {
             bloq = this.recurso_disponible.splice(index, 1)[0]; //Probar si el recurso está disponible
             this.recurso_en_uso.push(bloq);
+            this.enEspera_3 = 0
+            this.t_total_3 += 1;
           } else {
             this.estilo_3 = "#FF0000"
             this.bloqueado_3.push(this.ejecucion_3.shift())
             this.t_bloqueado_3 += 1;
+            this.enEspera_3 = 1
           }
         }
         if (this.bloqueado_3.length > 0) {
@@ -397,7 +406,7 @@ export class SjfComponent implements OnInit {
         }
       }
 
-      setTimeout(() => this.startProcesador_3(),1000 * 1 / this.tiempo_simulacion)
+      setTimeout(() => this.startProcesador_3(), 1000 * 1 / this.tiempo_simulacion)
     }
   }
   //||---------------------------------------- TRAER INFORMACIÓN DE COLAS-------------------||
