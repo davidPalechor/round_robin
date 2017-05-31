@@ -258,6 +258,7 @@ export class SjfComponent implements OnInit {
         this.ejecucion_3.length == 0) {
         console.log("Terminando")
         this.enEjecucion = false
+        this.sjfService.inicializarVariables()
         // this.inicializarVariables()
         clearInterval(timer)
       }
