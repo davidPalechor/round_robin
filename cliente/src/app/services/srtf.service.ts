@@ -13,8 +13,19 @@ export class SrtfService {
   private urlNotificarSuspendido = 'http://localhost:8000/srtf/notificar_suspendido/'
   private urlNotificarSuspendido_2 = 'http://localhost:8000/srtf/notificar_suspendido_2/'
   private urlNotificarSuspendido_3 = 'http://localhost:8000/srtf/notificar_suspendido_3/'
+  private urlInit = 'http://localhost:8000/srtf/init/'
 
   constructor(private http: Http) { }
+
+  inicializarVariables() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlInit, options)
+      .toPromise()
+      .then(() => console.log("Ejecutando"))
+      .catch(this.handleError);
+  }
 
   getInfoListos() {
     return this.http.get(this.apiURL)

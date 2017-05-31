@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { SjfService } from '../services/sjf.service';
 import { Observable } from 'rxjs/Rx';
 import * as jsPDF from 'jspdf';
+import * as jquery from 'jquery';
 
 @Component({
   selector: 'app-sjf',
@@ -14,6 +15,7 @@ export class SjfComponent implements OnInit {
 
   // Procesador 1
   private listos = []
+  private ordenada = []
   private ejecucion = []
   private bloqueado = []
   private terminado = []
@@ -29,6 +31,7 @@ export class SjfComponent implements OnInit {
 
   //PROCESADOR 2
   private listos_2 = []
+  private ordenada_2 = []
   private ejecucion_2 = []
   private bloqueado_2 = []
   private terminado_2 = []
@@ -44,6 +47,7 @@ export class SjfComponent implements OnInit {
 
   //PROCESADOR 3
   private listos_3 = []
+  private ordenada_3 = []
   private ejecucion_3 = []
   private bloqueado_3 = []
   private terminado_3 = []
@@ -142,16 +146,36 @@ export class SjfComponent implements OnInit {
   postAgregarProceso() {
     this.sjfService.postAgregarProceso(this.param)
       .then(() => {
-        this.getInfoListos()
-        if (this.param.procesador == 1) {
-          this.total_procesos.push(this.param.nombre)
-          // this.cont +=1
-        }
+
+        if(!this.enEjecucion){
+          this.getInfoListos()
+        }else{
+          var info = jquery.extend({},this.param)
+          console.log(info)
+          if (this.param.procesador == 1) {
+            this.listos.push(info)
+            // this.cont +=1
+          }
         if (this.param.procesador == 2) {
+          this.listos_2.push(info)
+        }
+
+        if (this.param.procesador == 3) {
+          this.listos_3.push(info)
+        }
+        }
+        if (this.param.procesador == 1) {
+            //this.listos.push(this.param)
+            this.total_procesos.push(this.param.nombre)
+            // this.cont +=1
+          }
+        if (this.param.procesador == 2) {
+          //this.listos_2.push(this.param)
           this.total_procesos_2.push(this.param.nombre)
         }
 
         if (this.param.procesador == 3) {
+          //this.listos_3.push(this.param)
           this.total_procesos_3.push(this.param.nombre)
         }
       })
@@ -164,6 +188,7 @@ export class SjfComponent implements OnInit {
     this.t_cpu = 0
     this.t_cpu_2 = 0
     this.t_cpu_3 = 0
+    this.sjfService.inicializarVariables()
   }
 
   ejecutarProcesos() {
@@ -233,6 +258,7 @@ export class SjfComponent implements OnInit {
         this.ejecucion_3.length == 0) {
         console.log("Terminando")
         this.enEjecucion = false
+        // this.inicializarVariables()
         clearInterval(timer)
       }
     }, 1000)
@@ -251,7 +277,6 @@ export class SjfComponent implements OnInit {
       }
       lista[j + 1] = aux;
     }
-    console.log("COLA ORDENADA: ", lista);
     return lista
   }
 
@@ -259,6 +284,7 @@ export class SjfComponent implements OnInit {
   startProcesador_1() {
     this.t_bloqueado = 0
     if (this.enEjecucion) {
+      console.log("LISTOS ", this.listos)
       this.listos = this.ordenarCola(this.listos);
 
       if (this.ejecucion.length == 0) {
@@ -466,7 +492,7 @@ export class SjfComponent implements OnInit {
   tiempo_en_proc_1() {
     if (this.enEjecucion) {
       this.context.fillStyle = this.estilo
-      this.context.fillRect(this.t_total * 2, 0, 2, 20)
+      this.context.fillRect(this.t_total, 0, 2, 20)
 
       setTimeout(() => this.tiempo_en_proc_1(), 1000 * 1 / this.tiempo_simulacion)
     }
@@ -480,7 +506,7 @@ export class SjfComponent implements OnInit {
 
     if (this.enEjecucion) {
       this.context_2.fillStyle = this.estilo_2
-      this.context_2.fillRect(this.t_total_2 * 2, 0, 2, 20)
+      this.context_2.fillRect(this.t_total_2, 0, 2, 20)
 
       setTimeout(() => this.tiempo_en_proc_2(), 1000 * 1 / this.tiempo_simulacion)
     }
@@ -493,7 +519,7 @@ export class SjfComponent implements OnInit {
 
     if (this.enEjecucion) {
       this.context_3.fillStyle = this.estilo_3
-      this.context_3.fillRect(this.t_total_3 * 2, 0, 2, 20)
+      this.context_3.fillRect(this.t_total_3, 0, 2, 20)
 
       setTimeout(() => this.tiempo_en_proc_3(), 1000 * 1 / this.tiempo_simulacion)
     }
@@ -538,12 +564,12 @@ export class SjfComponent implements OnInit {
     document.text(20, 70, "Promedio de tiempos en sección crítica: " + prom_cpu.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento * 100 + "%", 20, 80)
 
-    if (rendimiento > 0.40 && rendimiento < 0.70) {
+    if (rendimiento > 0.40 && rendimiento < 0.60) {
       document.setTextColor(255, 0, 0)
-      document.text("Malo", 140, 80)
+      document.text("Bajo", 140, 80)
     }
 
-    if (rendimiento > 0.70 && rendimiento < 0.80) {
+    if (rendimiento > 0.60 && rendimiento < 0.80) {
       document.setTextColor(255, 158, 74)
       document.text("Medio", 140, 80)
     }
@@ -568,13 +594,13 @@ export class SjfComponent implements OnInit {
     document.text(20, 130, "Promedio de tiempos en procesador: " + this.t_total_2.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento_2 * 100 + "%", 20, 140)
 
-    if (rendimiento_2 > 0.40 && rendimiento_2 < 0.70) {
+    if (rendimiento_2 > 0.40 && rendimiento_2 < 0.60) {
 
       document.setTextColor(255, 0, 0)
-      document.text("Malo", 140, 140)
+      document.text("Bajo", 140, 140)
     }
 
-    if (rendimiento_2 > 0.70 && rendimiento_2 < 0.80) {
+    if (rendimiento_2 > 0.60 && rendimiento_2 < 0.80) {
       document.setTextColor(255, 158, 74)
       document.text("Medio", 140, 140)
     }
@@ -597,13 +623,14 @@ export class SjfComponent implements OnInit {
     document.text("Sumatoria de tiempos en sección crítica: " + this.t_cpu_3.toString() + " segundos", 20, 180)
     document.text(20, 190, "Promedio de tiempos en procesador: " + this.t_total_3.toString() + " segundos")
     document.text("Rendimiento: " + rendimiento_3 * 100 + "%", 20, 200)
-    if (rendimiento_3 > 0.40 && rendimiento_3 < 0.70) {
+
+    if (rendimiento_3 > 0.40 && rendimiento_3 < 0.60) {
 
       document.setTextColor(255, 0, 0)
-      document.text("Malo", 140, 200)
+      document.text("Bajo", 140, 200)
     }
 
-    if (rendimiento_3 > 0.70 && rendimiento_3 < 0.80) {
+    if (rendimiento_3 > 0.60 && rendimiento_3 < 0.80) {
       document.setTextColor(255, 158, 74)
       document.text("Medio", 140, 200)
     }

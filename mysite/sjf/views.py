@@ -23,7 +23,7 @@ bloqueados_p2 = Cola()
 ejecutados_p2 = Cola()
 terminados_p2 = Cola()
 
-#PROCESADOR 3
+# PROCESADOR 3
 listos_p3 = Cola()
 suspendidos_p3 = Cola()
 bloqueados_p3 = Cola()
@@ -35,7 +35,13 @@ recursos = []
 disponibles = []
 en_uso = []
 
-cola_hilos = Cola()
+cola_hilos = q.PriorityQueue()
+cola_hilos_2 = q.PriorityQueue()
+cola_hilos_3 = q.PriorityQueue()
+
+# cola_hilos = Cola()
+# cola_hilos_2 = Cola()
+# cola_hilos_3 = Cola()
 
 
 def sjf(request):
@@ -95,7 +101,7 @@ def sjf(request):
                 proceso.info = context
                 print "Proceso a Procesador 2"
                 listos_p2.push(proceso)
-            
+
             if int(procesador) == 3:
                 proceso.info = context
                 print "Proceso a Procesador 3"
@@ -106,6 +112,24 @@ def sjf(request):
             return HttpResponse("Success!")
         except:
             return HttpResponseBadRequest('Bad request')
+
+
+def init(request):
+    if request.method == 'POST':
+        try:
+
+            print "Inicializando"
+            while not listos.isVacia():
+                listos.pop()
+            while not listos_p2.isVacia():
+                listos_p2.pop()
+            while not listos_p3.isVacia():
+                listos_p3.pop()
+
+            return HttpResponse('Success')
+        except Exception as e:
+            return HttpResponseBadRequest('Error Interno: ' + str(e))
+
 
 def organizarColas(cola):
     raiz = cola.cab
@@ -121,6 +145,7 @@ def organizarColas(cola):
         raiz = raiz.sig
     return cola
 
+
 def listaListos(request):
     try:
         global listos
@@ -131,56 +156,57 @@ def listaListos(request):
 
 
 def crearHilo(nombre, tiempo, recurso, procesador, quantum):
-    global cola_hilos
     print "Creando Hilo " + nombre
 
     if int(procesador) == 1:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_1,
                               name=nombre, args=(tiempo, quantum, recurso,))
-        cola_hilos.push(hilo)
+        cola_hilos.put((tiempo, hilo))
     elif int(procesador) == 2:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_2,
                               name=nombre, args=(tiempo, quantum, recurso,))
-        cola_hilos.push(hilo)
+        cola_hilos_2.put((tiempo, hilo))
     else:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_3,
                               name=nombre, args=(tiempo, quantum, recurso,))
-        cola_hilos.push(hilo)
+        cola_hilos_3.put((tiempo, hilo))
 
 
 def ejecutarHilos(request):
     if request.method == 'POST':
         try:
-            print "EJECUTANDO HILOS"
-            global cola_hilos
-            global ejecutados_p1
-            global listos
-
-            organizarColas(listos)
+            print listos.isVacia()
             if listos.cab is not None:
-                ejecutados_p1.push(listos.pop())
-                ejecutados_p1.cab.info['estado'] = "ejecucion"
+                organizarColas(listos)
+                if ejecutados_p1.cab is None:
+                    ejecutados_p1.push(listos.pop())
+                    ejecutados_p1.cab.info['estado'] = "ejecucion"
+                    cola_hilos.get()[1].info.start()
 
-            organizarColas(listos_p2)
             if listos_p2.cab is not None:
-                ejecutados_p2.push(listos_p2.pop())
-                ejecutados_p2.cab.info['estado'] = 'ejecucion'
+                organizarColas(listos_p2)
+                if ejecutados_p2.cab is None:
+                    ejecutados_p2.push(listos_p2.pop())
+                    ejecutados_p2.cab.info['estado'] = 'ejecucion'
+                    cola_hilos_2.get()[1].info.start()
 
-            organizarColas(listos_p3)
             if listos_p3.cab is not None:
-                ejecutados_p3.push(listos_p3.pop())
-                ejecutados_p3.cab.info['estado'] = 'ejecucion'
+                organizarColas(listos_p3)
+                if ejecutados_p3.cab is None:
+                    ejecutados_p3.push(listos_p3.pop())
+                    ejecutados_p3.cab.info['estado'] = 'ejecucion'
+                    cola_hilos_3.get()[1].info.start()
 
-            if cola_hilos.cab is not None:
-                hilo = cola_hilos.pop()
-                hilo.info.start()
+            # if cola_hilos.cab is not None:
+            #     hilo = cola_hilos.pop()
+            #     hilo.info.start()
 
             return HttpResponse("Ejecutando")
         except Exception as e:
-            return HttpResponseBadRequest("Error Interno: "+str(e))
+            return HttpResponseBadRequest("Error Interno: " + str(e))
 
 
 def manejoRecursos(request):
@@ -215,12 +241,12 @@ def listarEjecutados(request):
     if request.method == 'GET':
         try:
             global ejecutados_p1
-            respuesta = [[],[],[]]
+            respuesta = [[], [], []]
             proceso = ejecutados_p1.cab
             while proceso is not None:
                 respuesta[0].append(proceso.info)
                 proceso = proceso.sig
-            
+
             proceso = ejecutados_p2.cab
             while proceso is not None:
                 respuesta[1].append(proceso.info)
@@ -242,7 +268,7 @@ def listarTerminados(request):
         try:
             global terminados
             index = terminados.cab
-            respuesta = [[],[],[]]
+            respuesta = [[], [], []]
 
             while index is not None:
                 respuesta[0].append(index.info)
@@ -263,38 +289,6 @@ def listarTerminados(request):
         except:
             return HttpResponseBadRequest("Error interno")
 
-def actualizarEstado(request):
-    if request.method == "POST":
-        try:
-            global ejecutados_p1
-            global ejecutados_p2
-            if ejecutados_p1.cab is not None:
-                ejecutados_p1.cab.info['estado'] = "suspendido"
-            return HttpResponse("[SERV] Estado actualizado")
-        except:
-            return HttpResponseBadRequest("No se pudo actualizar")
-
-def actualizarEstado_2(request):
-    if request.method == "POST":
-        try:
-            global ejecutados_p2
-            if ejecutados_p2.cab is not None:
-                ejecutados_p2.cab.info['estado'] = "suspendido"
-            return HttpResponse("[SERV] Estado actualizado")
-        except:
-            return HttpResponseBadRequest("No se pudo actualizar")
-
-def actualizarEstado_3(request):
-    if request.method == "POST":
-        try:
-            global ejecutados_p3
-            if ejecutados_p3.cab is not None:
-                ejecutados_p3.cab.info['estado'] = "suspendido"
-            return HttpResponse("[SERV] Estado actualizado")
-        except:
-            return HttpResponseBadRequest("No se pudo actualizar")
-
-
 
 def procesador_1(tiempo, quantum, recurso):
     # RECURSOS
@@ -310,7 +304,6 @@ def procesador_1(tiempo, quantum, recurso):
     # PROCESO ACTUAL
     proceso = th.current_thread().getName()
 
-    
     if recurso in disponibles:
         print "RECURSO DISBONIBLE, BLOQUEANDO..."
         index = disponibles.index(recurso)
@@ -354,6 +347,8 @@ def procesador_2(tiempo, quantum, recurso):
         en_uso.append(disponibles.pop(index))
         print en_uso
     else:
+
+        ejecutados_p2.pop()
         while recurso not in disponibles:
             t.sleep(1)
 
@@ -366,6 +361,7 @@ def procesador_2(tiempo, quantum, recurso):
         seg = round(fin - inicio)
 
     terminados_p2.push(ejecutados_p2.pop())
+    disponibles.append(en_uso.pop())
     print "PROCESADOR 2: PROCESO " + proceso + " TERMINADO"
     return
 
@@ -390,6 +386,8 @@ def procesador_3(tiempo, quantum, recurso):
         en_uso.append(disponibles.pop(index))
         print en_uso
     else:
+
+        ejecutados_p3.pop()
         while recurso not in disponibles:
             t.sleep(1)
 
@@ -403,5 +401,6 @@ def procesador_3(tiempo, quantum, recurso):
 
     terminados_p3.push(ejecutados_p3.pop())
     print terminados_p3.cab.info
+    # disponibles.append(en_uso.pop())
     print "PROCESADOR 3: PROCESO " + proceso + " TERMINADO"
     return

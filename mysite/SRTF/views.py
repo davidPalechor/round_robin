@@ -35,7 +35,11 @@ recursos = []
 disponibles = []
 en_uso = []
 
-cola_hilos = Cola()
+
+            
+cola_hilos = q.PriorityQueue()
+cola_hilos_2 = q.PriorityQueue()
+cola_hilos_3 = q.PriorityQueue()
 
 
 def srtf(request):
@@ -109,6 +113,21 @@ def srtf(request):
             return HttpResponseBadRequest('Bad request')
 
 
+def init(request):
+    if request.method == 'POST':
+        try:
+            print "Inicializando"
+            while not listos.isVacia():
+                listos.pop()
+            while not listos_p2.isVacia():
+                listos_p2.pop()
+            while not listos_p3.isVacia():
+                listos_p3.pop()
+
+            return HttpResponse('Success')
+        except Exception as e:
+            return HttpResponseBadRequest('Error Interno: ' + str(e))
+
 def organizarColas(cola):
     raiz = cola.cab
     while raiz is not None:
@@ -140,45 +159,47 @@ def crearHilo(nombre, tiempo, recurso, procesador):
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_1,
                               name=nombre, args=(tiempo, recurso,))
-        cola_hilos.push(hilo)
+        cola_hilos.put((tiempo, hilo))
     elif int(procesador) == 2:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_2,
                               name=nombre, args=(tiempo, recurso,))
-        cola_hilos.push(hilo)
+        cola_hilos_2.put((tiempo, hilo))
     else:
         hilo = Nodo()
         hilo.info = th.Thread(target=procesador_3,
                               name=nombre, args=(tiempo, recurso,))
-        cola_hilos.push(hilo)
+        cola_hilos_3.put((tiempo, hilo))
 
 
 def ejecutarHilos(request):
     if request.method == 'POST':
         try:
-            print "EJECUTANDO HILOS"
-            global cola_hilos
-            global ejecutados_p1
-            global listos
-
-            organizarColas(listos)
+            print listos.isVacia()
             if listos.cab is not None:
-                ejecutados_p1.push(listos.pop())
-                ejecutados_p1.cab.info['estado'] = "ejecucion"
+                organizarColas(listos)
+                if ejecutados_p1.cab is None:
+                    ejecutados_p1.push(listos.pop())
+                    ejecutados_p1.cab.info['estado'] = "ejecucion"
+                    cola_hilos.get()[1].info.start()
 
-            organizarColas(listos_p2)
             if listos_p2.cab is not None:
-                ejecutados_p2.push(listos_p2.pop())
-                ejecutados_p2.cab.info['estado'] = 'ejecucion'
-            
-            organizarColas(listos_p3)
-            if listos_p3.cab is not None:
-                ejecutados_p3.push(listos_p3.pop())
-                ejecutados_p3.cab.info['estado'] = 'ejecucion'
+                organizarColas(listos_p2)
+                if ejecutados_p2.cab is None:
+                    ejecutados_p2.push(listos_p2.pop())
+                    ejecutados_p2.cab.info['estado'] = 'ejecucion'
+                    cola_hilos_2.get()[1].info.start()
 
-            if cola_hilos.cab is not None:
-                hilo = cola_hilos.pop()
-                hilo.info.start()
+            if listos_p3.cab is not None:
+                organizarColas(listos_p3)
+                if ejecutados_p3.cab is None:
+                    ejecutados_p3.push(listos_p3.pop())
+                    ejecutados_p3.cab.info['estado'] = 'ejecucion'
+                    cola_hilos_3.get()[1].info.start()
+
+            # if cola_hilos.cab is not None:
+            #     hilo = cola_hilos.pop()
+            #     hilo.info.start()
 
             return HttpResponse("Ejecutando")
         except Exception as e:

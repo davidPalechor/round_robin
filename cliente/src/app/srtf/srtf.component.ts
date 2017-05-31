@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { SrtfService } from '../services/srtf.service';
 import { Observable } from 'rxjs/Rx';
 import * as jsPDF from 'jspdf';
+import * as jquery from 'jquery';
 
 @Component({
   selector: 'app-srtf',
@@ -118,10 +119,11 @@ export class SrtfComponent implements OnInit {
   }
 
   prepararColas() {
+    //this.inicializarVariables()
     this.getInfoListos()
     this.getRecursos()
     // this.listarEjecucion()
-    this.listarTerminados()
+    //this.listarTerminados()
   }
 
   prepararCanvas() {
@@ -148,22 +150,54 @@ export class SrtfComponent implements OnInit {
   postAgregarProceso() {
     this.srtfService.postAgregarProceso(this.param)
       .then(() => {
-        this.getInfoListos()
-        if (this.param.procesador == 1) {
-          this.total_procesos.push(this.param.nombre)
-          // this.cont +=1
-        }
+        
+
+        if(!this.enEjecucion){
+          this.getInfoListos()
+        }else{
+          var info = jquery.extend({},this.param)
+          console.log(info)
+          if (this.param.procesador == 1) {
+            this.listos.push(info)
+            // this.cont +=1
+          }
         if (this.param.procesador == 2) {
+          this.listos_2.push(info)
+        }
+
+        if (this.param.procesador == 3) {
+          this.listos_3.push(info)
+        }
+        }
+        if (this.param.procesador == 1) {
+            //this.listos.push(this.param)
+            this.total_procesos.push(this.param.nombre)
+            // this.cont +=1
+          }
+        if (this.param.procesador == 2) {
+          //this.listos_2.push(this.param)
           this.total_procesos_2.push(this.param.nombre)
         }
 
         if (this.param.procesador == 3) {
+          //this.listos_3.push(this.param)
           this.total_procesos_3.push(this.param.nombre)
         }
       })
   }
 
+  inicializarVariables() {
+    this.t_total = 0
+    this.t_total_2 = 0
+    this.t_total_3 = 0
+    this.t_cpu = 0
+    this.t_cpu_2 = 0
+    this.t_cpu_3 = 0
+    this.srtfService.inicializarVariables()
+  }
+
   ejecutarProcesos() {
+    this.inicializarVariables()
     this.prepararCanvas()
     this.terminarEjecucion()
     this.enEjecucion = true
@@ -229,6 +263,7 @@ export class SrtfComponent implements OnInit {
         this.ejecucion_3.length == 0) {
         console.log("Terminando")
         this.enEjecucion = false
+        this.srtfService.inicializarVariables()
         clearInterval(timer)
       }
     }, 1000)
@@ -247,7 +282,6 @@ export class SrtfComponent implements OnInit {
       }
       lista[j + 1] = aux;
     }
-    console.log("COLA ORDENADA: ", lista);
     return lista
   }
 
@@ -294,7 +328,7 @@ export class SrtfComponent implements OnInit {
           if (this.ejecucion[0].tiempo > this.listos[0].tiempo) {
             this.suspendido.push(this.ejecucion.pop())
             this.notificarSuspendido()
-            this.ejecucion.push(this.listos.pop())
+            this.ejecucion.push(this.listos.shift())
           }
         }
         if (this.ejecucion[0].tiempo == 0) {
@@ -356,8 +390,8 @@ export class SrtfComponent implements OnInit {
         if (this.listos_2.length > 0) {
           if (this.ejecucion_2[0].tiempo > this.listos_2[0].tiempo) {
             this.suspendido_2.push(this.ejecucion_2.pop())
-            this.notificarSuspendido()
-            this.ejecucion_2.push(this.listos_2.pop())
+            this.notificarSuspendido_2()
+            this.ejecucion_2.push(this.listos_2.shift())
           }
         }
         if (this.ejecucion_2[0].tiempo == 0) {
@@ -411,14 +445,14 @@ export class SrtfComponent implements OnInit {
         this.tiempo_ejecucion_3 += 1;
         this.t_cpu_3 += 1;
         this.ejecucion_3[0].tiempo -= 1
-        if (this.listos_2.length > 0) {
-          if (this.ejecucion_2[0].tiempo > this.listos_2[0].tiempo) {
-            this.suspendido_2.push(this.ejecucion_2.pop())
-            this.notificarSuspendido()
-            this.ejecucion_2.push(this.listos_2.shift())
+        if (this.listos_3.length > 0) {
+          if (this.ejecucion_3[0].tiempo > this.listos_3[0].tiempo) {
+            this.suspendido_3.push(this.ejecucion_3.pop())
+            this.notificarSuspendido_3()
+            this.ejecucion_3.push(this.listos_3.shift())
           }
         }
-        if (this.tiempo_ejecucion_3 == this.ejecucion_3[0].tiempo) {
+        if (this.ejecucion_3[0].tiempo == 0) {
           this.terminado_3.push(this.ejecucion_3.shift())
           this.tiempo_ejecucion_3 = 0;
           this.recurso_disponible.push(this.recurso_en_uso.shift())

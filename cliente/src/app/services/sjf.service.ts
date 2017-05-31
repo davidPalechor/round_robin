@@ -10,8 +10,19 @@ export class SjfService {
   private urlGetEjecutados = 'http://localhost:8000/sjf/lista_ejecutados/'
   private urlRecursos = 'http://localhost:8000/sjf/recursos/'
   private urlGetTerminados = 'http://localhost:8000/sjf/lista_terminados/'
+  private urlInit = 'http://localhost:8000/sjf/init/'
 
   constructor(private http: Http) { }
+
+  inicializarVariables() {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this.urlInit, options)
+      .toPromise()
+      .then(() => console.log("Ejecutando"))
+      .catch(this.handleError);
+  }
 
   getInfoListos() {
     return this.http.get(this.apiURL)
