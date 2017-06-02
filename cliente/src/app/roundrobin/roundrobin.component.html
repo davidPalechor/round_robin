@@ -55,9 +55,6 @@
                 <!--<input type="range" name="t_sim" [(ngModel)]="tiempo_simulacion.tiempo" min="1" max="10">-->
                 <button class="btn btn-success" (click)="ejecutarProcesos()" id="btn_proceso">Ejecutar</button>
             </div>
-            <div class="col-xs-4">
-                <button class="btn btn-success" (click)="pausarSimulacion()" [disabled]="enEjecucion == false">Pausar</button>
-            </div>
         </div>
         <div class="row">
             <div class="col-xs-12">

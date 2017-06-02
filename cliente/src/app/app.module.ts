@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { RoundrobinService } from './services/roundrobin.service';
 import { SjfService } from './services/sjf.service';
 import { SrtfService} from './services/srtf.service';
+import { ColasMultiplesService } from './services/colas-multiples.service'
 
 
 //Componentes
@@ -18,6 +19,7 @@ import { LandingComponent } from './landing/landing.component';
 import { RoundrobinComponent } from './roundrobin/roundrobin.component';
 import { SjfComponent } from './sjf/sjf.component';
 import { SrtfComponent } from './srtf/srtf.component';
+import { ColasMultiplesComponent } from './colas-multiples/colas-multiples.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,8 @@ import { SrtfComponent } from './srtf/srtf.component';
     LandingComponent,
     RoundrobinComponent,
     SjfComponent,
-    SrtfComponent
+    SrtfComponent,
+    ColasMultiplesComponent
   ],
 
   imports: [
@@ -37,7 +40,8 @@ import { SrtfComponent } from './srtf/srtf.component';
   providers: [
     RoundrobinService,
     SjfService,
-    SrtfService
+    SrtfService,
+    ColasMultiplesService
    ],
   bootstrap: [AppComponent]
 })

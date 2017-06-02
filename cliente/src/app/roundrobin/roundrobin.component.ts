@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { RoundrobinService } from '../services/roundrobin.service';
 import { Observable } from 'rxjs/Rx';
 import * as jsPDF from 'jspdf';
+import * as jquery from 'jquery';
 
 @Component({
   selector: 'app-roundrobin',
@@ -67,6 +68,10 @@ export class RoundrobinComponent implements OnInit {
 
   // OTRAS VARIABLES
 
+  private enEspera_1 = 0
+  private enEspera_2 = 0
+  private enEspera_3 = 0
+
   private tiempo_simulacion = 1
   private items_recursos = []
 
@@ -118,12 +123,14 @@ export class RoundrobinComponent implements OnInit {
   prepararColas() {
     this.getInfoListos()
     this.getRecursos()
-    // this.listarEjecucion()
-    this.listarSuspendido()
-    this.listarTerminados()
   }
 
   prepararCanvas() {
+
+    this.t_total = 0
+    this.t_total_2 = 0
+    this.t_total_3 = 0
+
     if (this.total_procesos.length > 0) {
       this.canvas = this.gant_p1.nativeElement
       this.context = this.canvas.getContext("2d");
@@ -215,7 +222,6 @@ export class RoundrobinComponent implements OnInit {
         clearInterval(timer);
         // this.p1_enEjecucion = false;
       }
-      console.log(this.enEjecucion)
       if (this.ejecucion.length == 0) {
         if (this.cont > 0) {
           this.postEjecutarProcesos()
