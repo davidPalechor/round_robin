@@ -81,6 +81,7 @@ def round_robin(request):
             recurso = info['recurso']
             procesador = info['procesador']
             estado = info['estado']
+            prioridad = info['prioridad']
 
             context['tiempo'] = tiempo
             context['nombre'] = nombre
@@ -88,6 +89,7 @@ def round_robin(request):
             context['procesador'] = procesador
             context['estado'] = estado
             context['quantum'] = tiempo
+            context['prioridad'] = prioridad
 
             proceso = Nodo()
 
@@ -99,13 +101,13 @@ def round_robin(request):
             if int(procesador) == 2:
                 context['quantum'] = calcularQuantum(listos_p2, tiempo)
                 proceso.info = context
-                print "Proceso a Procesadro 2"
+                print "Proceso a Procesador 2"
                 listos_p2.push(proceso)
             
             if int(procesador) == 3:
                 context['quantum'] = calcularQuantum(listos_p3, tiempo)
                 proceso.info = context
-                print "Proceso a Procesadro 3"
+                print "Proceso a Procesador 3"
                 listos_p3.push(proceso)
 
             crearHilo(context['nombre'], context['tiempo'],
