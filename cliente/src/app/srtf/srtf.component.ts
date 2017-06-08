@@ -150,30 +150,30 @@ export class SrtfComponent implements OnInit {
   postAgregarProceso() {
     this.srtfService.postAgregarProceso(this.param)
       .then(() => {
-        
 
-        if(!this.enEjecucion){
+
+        if (!this.enEjecucion) {
           this.getInfoListos()
-        }else{
-          var info = jquery.extend({},this.param)
+        } else {
+          var info = jquery.extend({}, this.param)
           console.log(info)
           if (this.param.procesador == 1) {
             this.listos.push(info)
             // this.cont +=1
           }
-        if (this.param.procesador == 2) {
-          this.listos_2.push(info)
-        }
+          if (this.param.procesador == 2) {
+            this.listos_2.push(info)
+          }
 
-        if (this.param.procesador == 3) {
-          this.listos_3.push(info)
-        }
+          if (this.param.procesador == 3) {
+            this.listos_3.push(info)
+          }
         }
         if (this.param.procesador == 1) {
-            //this.listos.push(this.param)
-            this.total_procesos.push(this.param.nombre)
-            // this.cont +=1
-          }
+          //this.listos.push(this.param)
+          this.total_procesos.push(this.param.nombre)
+          // this.cont +=1
+        }
         if (this.param.procesador == 2) {
           //this.listos_2.push(this.param)
           this.total_procesos_2.push(this.param.nombre)

@@ -255,6 +255,7 @@ export class ColasMultiplesComponent implements OnInit {
       this.listos_sjf_1 = this.ordenarCola(this.listos_sjf_1);
       this.listos_srtf_1 = this.ordenarCola(this.listos_srtf_1);
       if (this.ejecucion.length == 0) {
+        var index;
         if (this.listos_RR_1.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion.push(this.listos_RR_1.shift())
@@ -268,78 +269,80 @@ export class ColasMultiplesComponent implements OnInit {
           this.ejecucion.push(this.listos_srtf_1.shift())
           this.t_total += 1
         }
-      } else {
+      }
 
-        this.estilo = "#00FF00"
-        this.t_total += 1;
-        this.t_cpu += 1;
+    } else {
 
-        if (this.listos_sjf_1.length > 0) {
-          for (let i = 0; i < this.listos_sjf_1.length; i++) {
-            this.listos_sjf_1[i].ttl -= 1;
+      this.estilo = "#00FF00"
+      this.t_total += 1;
+      this.t_cpu += 1;
 
-            if (this.listos_sjf_1[i].ttl == 0) {
-              var aux = this.calcularQuantum(this.listos_RR_1, this.listos_sjf_1[i].tiempo)
-              this.listos_sjf_1[i].quantum = aux
-              this.listos_RR_1.push(this.listos_sjf_1.splice(i, 1)[0])
-            }
-          }
-        }
+      if (this.listos_sjf_1.length > 0) {
+        for (let i = 0; i < this.listos_sjf_1.length; i++) {
+          this.listos_sjf_1[i].ttl -= 1;
 
-        if (this.listos_srtf_1.length > 0) {
-          for (let i = 0; i < this.listos_srtf_1.length; i++) {
-            this.listos_srtf_1[i].ttl -= 1;
-
-            if (this.listos_srtf_1[i].ttl == 0) {
-              this.listos_srtf_1[i].ttl = Math.round(this.listos_srtf_1[i].tiempo * 1.5)
-              this.listos_sjf_1.push(this.listos_srtf_1.splice(i, 1)[0])
-            }
-          }
-        }
-
-        if (this.ejecucion[0].prioridad == 'sistema') {        //---------------RoundRobin-----------||
-          this.ejecucion[0].tiempo -= 1;
-          this.ejecucion[0].quantum -= 1;
-
-          if (this.ejecucion[0].tiempo > this.ejecucion[0].quantum) {
-            if (this.ejecucion[0].quantum == 0) {
-              this.suspendido.push(this.ejecucion.pop())
-              this.notificarSuspendido(1);
-              if (this.listos_RR_1.length > 0) {
-                this.ejecucion.push(this.listos_RR_1.shift())
-              }
-            }
-          } else {
-            if (this.ejecucion[0].tiempo == 0) {
-              this.terminado.push(this.ejecucion.pop())
-            }
-          }
-        } else if (this.ejecucion[0].prioridad == 'E/S') {  //---------------SJF-----------||
-          this.ejecucion[0].tiempo -= 1;
-          if (this.ejecucion[0].tiempo == 0) {
-            this.terminado.push(this.ejecucion.pop())
-          }
-        } else {                              //---------------SRTF-----------||
-          this.ejecucion[0].tiempo -= 1;
-          if (this.listos_srtf_1.length > 0) {
-            if (this.ejecucion[0].tiempo > this.listos_srtf_1[0].tiempo) {
-              this.suspendido.push(this.ejecucion.pop())
-              this.notificarSuspendido(3)
-              this.ejecucion.push(this.listos_srtf_1.shift())
-            }
-          }
-          if (this.ejecucion[0].tiempo == 0) {
-            this.terminado.push(this.ejecucion.shift())
-            //this.tiempo_ejecucion = 0;
-            this.recurso_disponible.push(this.recurso_en_uso.shift())
-            console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
-
+          if (this.listos_sjf_1[i].ttl == 0) {
+            var aux = this.calcularQuantum(this.listos_RR_1, this.listos_sjf_1[i].tiempo)
+            this.listos_sjf_1[i].quantum = aux
+            this.listos_RR_1.push(this.listos_sjf_1.splice(i, 1)[0])
           }
         }
       }
-      setTimeout(() => this.startProcesador_1(), 1000 * 1 / this.tiempo_simulacion)
+
+      if (this.listos_srtf_1.length > 0) {
+        for (let i = 0; i < this.listos_srtf_1.length; i++) {
+          this.listos_srtf_1[i].ttl -= 1;
+
+          if (this.listos_srtf_1[i].ttl == 0) {
+            this.listos_srtf_1[i].ttl = Math.round(this.listos_srtf_1[i].tiempo * 1.5)
+            this.listos_sjf_1.push(this.listos_srtf_1.splice(i, 1)[0])
+          }
+        }
+      }
+
+      if (this.ejecucion[0].prioridad == 'sistema') {        //---------------RoundRobin-----------||
+        this.ejecucion[0].tiempo -= 1;
+        this.ejecucion[0].quantum -= 1;
+
+        if (this.ejecucion[0].tiempo > this.ejecucion[0].quantum) {
+          if (this.ejecucion[0].quantum == 0) {
+            this.suspendido.push(this.ejecucion.pop())
+            this.notificarSuspendido(1);
+            if (this.listos_RR_1.length > 0) {
+              this.ejecucion.push(this.listos_RR_1.shift())
+            }
+          }
+        } else {
+          if (this.ejecucion[0].tiempo == 0) {
+            this.terminado.push(this.ejecucion.pop())
+          }
+        }
+      } else if (this.ejecucion[0].prioridad == 'E/S') {  //---------------SJF-----------||
+        this.ejecucion[0].tiempo -= 1;
+        if (this.ejecucion[0].tiempo == 0) {
+          this.terminado.push(this.ejecucion.pop())
+        }
+      } else {                              //---------------SRTF-----------||
+        this.ejecucion[0].tiempo -= 1;
+        if (this.listos_srtf_1.length > 0) {
+          if (this.ejecucion[0].tiempo > this.listos_srtf_1[0].tiempo) {
+            this.suspendido.push(this.ejecucion.pop())
+            this.notificarSuspendido(3)
+            this.ejecucion.push(this.listos_srtf_1.shift())
+          }
+        }
+        if (this.ejecucion[0].tiempo == 0) {
+          this.terminado.push(this.ejecucion.shift())
+          //this.tiempo_ejecucion = 0;
+          this.recurso_disponible.push(this.recurso_en_uso.shift())
+          console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
+
+        }
+      }
     }
+    setTimeout(() => this.startProcesador_1(), 1000 * 1 / this.tiempo_simulacion)
   }
+
 
   startProcesador_2() {
     if (this.enEjecucion) {
@@ -349,86 +352,90 @@ export class ColasMultiplesComponent implements OnInit {
         if (this.listos_RR_2.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion_2.push(this.listos_RR_2.shift())
-          this.t_total += 1
-        } else if (this.listos_sjf_2.length > 0) {
-          this.postEjecutarProcesos()
-          this.ejecucion_2.push(this.listos_sjf_2.shift())
-          this.t_total += 1
-        } else if (this.listos_srtf_2.length > 0) {
-          this.postEjecutarProcesos()
-          this.ejecucion_2.push(this.listos_srtf_2.shift())
-          this.t_total += 1
+          this.t_total_2 += 1
         }
-      } else {
+      } else if (this.listos_sjf_2.length > 0) {
+        this.postEjecutarProcesos()
+        this.ejecucion_2.push(this.listos_sjf_2.shift())
+        var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
+        this.t_total_2 += 1
+      } else if (this.listos_srtf_2.length > 0) {
+        this.postEjecutarProcesos()
+        this.ejecucion_2.push(this.listos_srtf_2.shift())
+        var index = this.indexRecurso(this.recurso_disponible, this.ejecucion_2[0].recurso)
+        this.t_total_2 += 1
+      }
 
-        this.estilo_2 = "#00FF00"
-        this.t_total_2 += 1;
-        this.t_cpu_2 += 1;
+    } else {
 
-        if (this.listos_sjf_2.length > 0) {
-          for (let i = 0; i < this.listos_sjf_2.length; i++) {
-            this.listos_sjf_2[i].ttl -= 1;
+      this.estilo_2 = "#00FF00"
+      this.t_total_2 += 1;
+      this.t_cpu_2 += 1;
 
-            if (this.listos_sjf_2[i].ttl == 0) {
-              var aux = this.calcularQuantum(this.listos_RR_2, this.listos_sjf_2[i].tiempo)
-              this.listos_sjf_2[i].quantum = aux
-              this.listos_RR_2.push(this.listos_sjf_2.splice(i, 1)[0])
-            }
-          }
-        }
+      if (this.listos_sjf_2.length > 0) {
+        for (let i = 0; i < this.listos_sjf_2.length; i++) {
+          this.listos_sjf_2[i].ttl -= 1;
 
-        if (this.listos_srtf_2.length > 0) {
-          for (let i = 0; i < this.listos_srtf_2.length; i++) {
-            this.listos_srtf_2[i].ttl -= 1;
-
-            if (this.listos_srtf_2[i].ttl == 0) {
-              this.listos_srtf_2[i].ttl = Math.round(this.listos_srtf_2[i].tiempo * 1.5)
-              this.listos_sjf_2.push(this.listos_srtf_2.splice(i, 1)[0])
-            }
-          }
-        }
-
-        if (this.ejecucion_2[0].prioridad == 'sistema') {        //---------------RoundRobin-----------||
-          this.ejecucion_2[0].tiempo -= 1;
-          this.ejecucion_2[0].quantum -= 1;
-
-          if (this.ejecucion_2[0].tiempo > this.ejecucion_2[0].quantum) {
-            if (this.ejecucion_2[0].quantum == 0) {
-              this.suspendido.push(this.ejecucion_2.pop())
-              this.notificarSuspendido_2(1);
-              if (this.listos_RR_2.length > 0) {
-                this.ejecucion_2.push(this.listos_RR_2.shift())
-              }
-            }
-          } else {
-            if (this.ejecucion_2[0].tiempo == 0) {
-              this.terminado_2.push(this.ejecucion_2.pop())
-            }
-          }
-        } else if (this.ejecucion_2[0].prioridad == 'E/S') {  //---------------SJF-----------||
-          this.ejecucion_2[0].tiempo -= 1;
-          if (this.ejecucion_2[0].tiempo == 0) {
-            this.terminado_2.push(this.ejecucion_2.pop())
-          }
-        } else {                              //---------------SRTF-----------||
-          this.ejecucion_2[0].tiempo -= 1;
-          if (this.listos_srtf_2.length > 0) {
-            if (this.ejecucion_2[0].tiempo > this.listos_srtf_2[0].tiempo) {
-              this.suspendido_2.push(this.ejecucion_2.pop())
-              this.notificarSuspendido_2(3)
-              this.ejecucion_2.push(this.listos_srtf_2.shift())
-            }
-          }
-          if (this.ejecucion_2[0].tiempo == 0) {
-            this.terminado_2.push(this.ejecucion_2.shift())
-            //this.tiempo_ejecucion_2 = 0;
-            //this.recurso_disponible.push(this.recurso_en_uso.shift())
+          if (this.listos_sjf_2[i].ttl == 0) {
+            var aux = this.calcularQuantum(this.listos_RR_2, this.listos_sjf_2[i].tiempo)
+            this.listos_sjf_2[i].quantum = aux
+            this.listos_RR_2.push(this.listos_sjf_2.splice(i, 1)[0])
           }
         }
       }
-      setTimeout(() => this.startProcesador_2(), 1000 * 1 / this.tiempo_simulacion)
+
+      if (this.listos_srtf_2.length > 0) {
+        for (let i = 0; i < this.listos_srtf_2.length; i++) {
+          this.listos_srtf_2[i].ttl -= 1;
+
+          if (this.listos_srtf_2[i].ttl == 0) {
+            this.listos_srtf_2[i].ttl = Math.round(this.listos_srtf_2[i].tiempo * 1.5)
+            this.listos_sjf_2.push(this.listos_srtf_2.splice(i, 1)[0])
+          }
+        }
+      }
+
+      if (this.ejecucion_2[0].prioridad == 'sistema') {        //---------------RoundRobin-----------||
+        this.ejecucion_2[0].tiempo -= 1;
+        this.ejecucion_2[0].quantum -= 1;
+
+        if (this.ejecucion_2[0].tiempo > this.ejecucion_2[0].quantum) {
+          if (this.ejecucion_2[0].quantum == 0) {
+            this.suspendido_2.push(this.ejecucion_2.pop())
+            this.notificarSuspendido_2(1);
+            if (this.listos_RR_2.length > 0) {
+              this.ejecucion_2.push(this.listos_RR_2.shift())
+            }
+          }
+        } else {
+          if (this.ejecucion_2[0].tiempo == 0) {
+            this.terminado_2.push(this.ejecucion_2.pop())
+          }
+        }
+      } else if (this.ejecucion_2[0].prioridad == 'E/S') {  //---------------SJF-----------||
+        this.ejecucion_2[0].tiempo -= 1;
+        if (this.ejecucion_2[0].tiempo == 0) {
+          this.terminado_2.push(this.ejecucion_2.pop())
+        }
+      } else {                              //---------------SRTF-----------||
+        this.ejecucion_2[0].tiempo -= 1;
+        if (this.listos_srtf_2.length > 0) {
+          if (this.ejecucion_2[0].tiempo > this.listos_srtf_2[0].tiempo) {
+            this.suspendido_2.push(this.ejecucion_2.pop())
+            this.notificarSuspendido_2(3)
+            this.ejecucion_2.push(this.listos_srtf_2.shift())
+          }
+        }
+        if (this.ejecucion_2[0].tiempo == 0) {
+          this.terminado_2.push(this.ejecucion_2.shift())
+          //this.tiempo_ejecucion_2 = 0;
+          this.recurso_disponible.push(this.recurso_en_uso.shift())
+        }
+      }
     }
+    setTimeout(() => this.startProcesador_2(), 1000 * 1 / this.tiempo_simulacion)
   }
+
 
   startProcesador_3() {
     if (this.enEjecucion) {
@@ -438,15 +445,15 @@ export class ColasMultiplesComponent implements OnInit {
         if (this.listos_RR_3.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_RR_3.shift())
-          this.t_total += 1
+          this.t_total_3 += 1
         } else if (this.listos_sjf_3.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_sjf_3.shift())
-          this.t_total += 1
+          this.t_total_3 += 1
         } else if (this.listos_srtf_3.length > 0) {
           this.postEjecutarProcesos()
           this.ejecucion_3.push(this.listos_srtf_3.shift())
-          this.t_total += 1
+          this.t_total_3 += 1
         }
       } else {
 
@@ -573,9 +580,9 @@ export class ColasMultiplesComponent implements OnInit {
   tiempo_en_proc_2() {
     if (this.enEjecucion) {
       this.context_2.fillStyle = this.estilo_2
-      this.context_2.fillRect(this.t_total * 2, 0, 2, 20)
+      this.context_2.fillRect(this.t_total_2 * 2, 0, 2, 20)
 
-      setTimeout(() => this.tiempo_en_proc_1(), 1000 * 1 / this.tiempo_simulacion)
+      setTimeout(() => this.tiempo_en_proc_2(), 1000 * 1 / this.tiempo_simulacion)
     }
   }
 
@@ -624,7 +631,7 @@ export class ColasMultiplesComponent implements OnInit {
   tiempo_en_proc_3() {
     if (this.enEjecucion) {
       this.context_3.fillStyle = this.estilo_3
-      this.context_3.fillRect(this.t_total * 2, 0, 2, 20)
+      this.context_3.fillRect(this.t_total_3 * 2, 0, 2, 20)
 
       setTimeout(() => this.tiempo_en_proc_3(), 1000 * 1 / this.tiempo_simulacion)
     }
@@ -703,6 +710,8 @@ export class ColasMultiplesComponent implements OnInit {
 
 
   postAgregarProceso() {
+
+    var info = jquery.extend({}, this.param)
     if (this.param.procesador == 1) {
       this.total_procesos.push(this.param);
       if (this.prioridad == 1) {
@@ -711,13 +720,11 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosRR()
             } else {
-              var info = jquery.extend({}, this.param)
               if (this.param.procesador == 1) {
                 var aux = this.calcularQuantum(this.listos_RR_1, info.tiempo)
                 info.quantum = aux
                 info.prioridad = 'sistema'
                 this.listos_RR_1.push(info)
-
               }
             }
           })
@@ -728,7 +735,6 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosSjf()
             } else {
-              var info = jquery.extend({}, this.param)
               if (this.param.procesador == 1) {
                 info.ttl = info.tiempo * 1.5
                 info.prioridad = 'E/S'
@@ -743,7 +749,6 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosSrtf()
             } else {
-              var info = jquery.extend({}, this.param)
               if (this.param.procesador == 1) {
                 info.ttl = info.tiempo * 1.5
                 info.prioridad = 'Usuario'
@@ -762,7 +767,6 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosRR()
             } else {
-              var info = jquery.extend({}, this.param)
               var aux = this.calcularQuantum(this.listos_RR_2, info.tiempo)
               info.quantum = aux
               info.prioridad = 'sistema'
@@ -777,12 +781,10 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosSjf()
             } else {
-              var info = jquery.extend({}, this.param)
-              if (this.param.procesador == 1) {
-                info.ttl = info.tiempo * 1.5
-                info.prioridad = 'E/S'
-                this.listos_sjf_2.push(info)
-              }
+              info.ttl = info.tiempo * 1.5
+              info.prioridad = 'E/S'
+              this.listos_sjf_2.push(info)
+
             }
           })
       }
@@ -792,12 +794,9 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosSrtf()
             } else {
-              var info = jquery.extend({}, this.param)
-              if (this.param.procesador == 1) {
-                info.ttl = info.tiempo * 1.5
-                info.prioridad = 'Usuario'
-                this.listos_srtf_2.push(info)
-              }
+              info.ttl = info.tiempo * 1.5
+              info.prioridad = 'Usuario'
+              this.listos_srtf_2.push(info)
             }
           })
       }
@@ -811,12 +810,10 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosRR()
             } else {
-              var info = jquery.extend({}, this.param)
               var aux = this.calcularQuantum(this.listos_RR_3, info.tiempo)
               info.quantum = aux
               info.prioridad = 'sistema'
               this.listos_RR_3.push(info)
-
 
             }
           })
@@ -827,12 +824,10 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosSjf()
             } else {
-              var info = jquery.extend({}, this.param)
-              if (this.param.procesador == 1) {
-                info.ttl = info.tiempo * 1.5
-                info.prioridad = 'E/S'
-                this.listos_sjf_3.push(info)
-              }
+              info.ttl = info.tiempo * 1.5
+              info.prioridad = 'E/S'
+              this.listos_sjf_3.push(info)
+
             }
           })
       }
@@ -842,12 +837,9 @@ export class ColasMultiplesComponent implements OnInit {
             if (!this.enEjecucion) {
               this.getListosSrtf()
             } else {
-              var info = jquery.extend({}, this.param)
-              if (this.param.procesador == 1) {
-                info.ttl = info.tiempo * 1.5
-                info.prioridad = 'Usuario'
-                this.listos_srtf_3.push(info)
-              }
+              info.ttl = info.tiempo * 1.5
+              info.prioridad = 'Usuario'
+              this.listos_srtf_3.push(info)
             }
           })
       }
