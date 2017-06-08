@@ -83,13 +83,15 @@ def round_robin(request):
             estado = info['estado']
             prioridad = info['prioridad']
 
+            aux = cifrar("sistemas",nombre)
+            print aux
             context['tiempo'] = tiempo
-            context['nombre'] = nombre
+            context['nombre'] = aux
             context['recurso'] = recurso
             context['procesador'] = procesador
             context['estado'] = estado
             context['quantum'] = tiempo
-            context['prioridad'] = prioridad
+            context['prioridad'] = 'sistema'
 
             proceso = Nodo()
 
@@ -131,6 +133,30 @@ def init(request):
             return HttpResponse('Success')
         except Exception as e:
             return HttpResponseBadRequest('Error Interno: ' + str(e))
+
+abc="abcdefghijklmnopqrstuvwxyz123456789"
+
+def cifrar(palabra, clave):
+    text_cifrar=''
+    i=0
+    for letra in palabra:
+        suma=abc.find(letra) + abc.find(clave[i % len(clave)])
+        modulo=int(suma) % len(abc)
+        text_cifrar=text_cifrar+str(abc[modulo])
+        i=i+1
+    
+    return text_cifrar
+
+def descifrar(palabra, clave):
+    text_cifrar=''
+    i=0
+    for letra in palabra:
+        suma=abc.find(letra) - abc.find(clave[i % len(clave)])
+        modulo=int(suma) % len(abc)
+        text_cifrar=text_cifrar+str(abc[modulo])
+        i=i+1
+    
+    return text_cifrar
 
 def calcularQuantum(cola, tiempo):
     quantum = 0

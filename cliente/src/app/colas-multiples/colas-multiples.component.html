@@ -83,31 +83,35 @@
                 <div class="cpu">
                     <table class=" table table-striped">
                         <thead>
-                            <tr *ngIf="ejecucion[0].prioridad==1">
+                            <tr *ngIf="ejecucion[0].prioridad=='sistema'">
                                 <th>Nombre</th>
                                 <th>Tiempo</th>
                                 <th>Recurso</th>
                                 <th>Quántum</th>
+                                <th>Prioridad</th>
                             </tr>
-                            <tr *ngIf="ejecucion[0].prioridad!=1">
+                            <tr *ngIf="ejecucion[0].prioridad!='sistema'">
                                 <th>Nombre</th>
                                 <th>Tiempo</th>
                                 <th>Recurso</th>
+                                <th>Prioridad</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngIf="ejecucion[0].prioridad==1">
+                            <tr *ngIf="ejecucion[0].prioridad=='sistema'">
 
                                 <td>{{ejecucion[0].nombre}}</td>
                                 <td>{{ejecucion[0].tiempo}}</td>
                                 <td>{{ejecucion[0].recurso}}</td>
                                 <td>{{ejecucion[0].quantum}}</td>
+                                <td>{{ejecucion[0].prioridad}}</td>
                             </tr>
-                            <tr *ngIf="ejecucion[0].prioridad!=1">
+                            <tr *ngIf="ejecucion[0].prioridad!='sistema'">
 
                                 <td>{{ejecucion[0].nombre}}</td>
                                 <td>{{ejecucion[0].tiempo}}</td>
                                 <td>{{ejecucion[0].recurso}}</td>
+                                <td>{{ejecucion[0].prioridad}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -132,6 +136,7 @@
                                 <th>Tiempo</th>
                                 <th>Recurso</th>
                                 <th>Quántum</th>
+                                <th>Prioridad</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,6 +145,7 @@
                                 <td>{{item.tiempo}}</td>
                                 <td>{{item.recurso}}</td>
                                 <td>{{item.quantum}}</td>
+                                <td>{{item.prioridad}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -153,12 +159,14 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Recurso</th>
+                                <th>Prioridad</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let item of terminado">
                                 <td>{{item.nombre}}</td>
                                 <td>{{item.recurso}}</td>
+                                <td>{{item.prioridad}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -175,6 +183,8 @@
                                     <th>Nombre</th>
                                     <th>Tiempo</th>
                                     <th>Recurso</th>
+                                    <th>Prioridad</th>
+                                    <th>TTL</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,6 +192,8 @@
                                     <td>{{item.nombre}}</td>
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
+                                    <td>{{item.prioridad}}</td>
+                                    <td>{{item.ttl}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -197,6 +209,8 @@
                                     <th>Nombre</th>
                                     <th>Tiempo</th>
                                     <th>Recurso</th>
+                                    <th>Prioridad</th>
+                                    <th>Espera</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -204,6 +218,7 @@
                                     <td>{{item.nombre}}</td>
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
+                                    <td>{{item.prioridad}}</td>
                                     <td>{{t_suspendido}}</td>
                                 </tr>
                             </tbody>
@@ -221,6 +236,8 @@
                                     <th>Nombre</th>
                                     <th>Tiempo</th>
                                     <th>Recurso</th>
+                                    <th>Prioridad</th>
+                                    <th>TTL</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -228,6 +245,8 @@
                                     <td>{{item.nombre}}</td>
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
+                                    <td>{{item.prioridad}}</td>
+                                    <td>{{item.ttl}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -243,6 +262,7 @@
                                     <th>Nombre</th>
                                     <th>Tiempo</th>
                                     <th>Recurso</th>
+                                    <th>Prioridad</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -250,11 +270,416 @@
                                     <td>{{item.nombre}}</td>
                                     <td>{{item.tiempo}}</td>
                                     <td>{{item.recurso}}</td>
+                                    <td>{{item.prioridad}}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+            <!--...........................................PROCESADOR 2...............................-->
+            <div class="row">
+                <h2>Procesador 2</h2>
+                <h4>CPU </h4>
+                <div class="col-xs-12 centered" *ngIf="ejecucion_2.length > 0">
+                    <div class="cpu">
+                        <table class=" table table-striped">
+                            <thead>
+                                <tr *ngIf="ejecucion_2[0].prioridad=='sistema'">
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Quántum</th>
+                                    <th>Prioridad</th>
+                                </tr>
+                                <tr *ngIf="ejecucion_2[0].prioridad!='sistema'">
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Prioridad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="ejecucion_2[0].prioridad=='sistema'">
+
+                                    <td>{{ejecucion_2[0].nombre}}</td>
+                                    <td>{{ejecucion_2[0].tiempo}}</td>
+                                    <td>{{ejecucion_2[0].recurso}}</td>
+                                    <td>{{ejecucion_2[0].quantum}}</td>
+                                    <td>{{ejecucion_2[0].prioridad}}</td>
+                                </tr>
+                                <tr *ngIf="ejecucion_2[0].prioridad!='sistema'">
+
+                                    <td>{{ejecucion_2[0].nombre}}</td>
+                                    <td>{{ejecucion_2[0].tiempo}}</td>
+                                    <td>{{ejecucion_2[0].recurso}}</td>
+                                    <td>{{ejecucion_2[0].prioridad}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h3>Diagrama de Gantt</h3>
+                        <canvas #gant_2 height="20px"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 centered">
+                    <h4>Round Robin (P = 1)</h4>
+                    <div class="colas">
+                        <table class=" table table-striped" *ngIf="listos_RR_2.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tiempo</th>
+                                    <th>Recurso</th>
+                                    <th>Quántum</th>
+                                    <th>Prioridad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of listos_RR_2">
+                                    <td>{{item.nombre}}</td>
+                                    <td>{{item.tiempo}}</td>
+                                    <td>{{item.recurso}}</td>
+                                    <td>{{item.quantum}}</td>
+                                    <td>{{item.prioridad}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <h4>Terminados</h4>
+                    <div class="colas">
+                        <table class=" table table-striped" *ngIf="terminado_3.length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Recurso</th>
+                                    <th>Prioridad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of terminado_3">
+                                    <td>{{item.nombre}}</td>
+                                    <td>{{item.recurso}}</td>
+                                    <td>{{item.prioridad}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4>SJF (P = 2)</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="listos_sjf_2.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Prioridad</th>
+                                        <th>TTL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of listos_sjf_2">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.prioridad}}</td>
+                                        <td>{{item.ttl}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <h4>Suspendidos</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="suspendido_2.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Prioridad</th>
+                                        <th>Espera</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of suspendido_2">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.prioridad}}</td>
+                                        <td>{{t_suspendido}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4>SRTF (P = 3)</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="listos_srtf_2.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Prioridad</th>
+                                        <th>TTL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of listos_srtf_2">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.prioridad}}</td>
+                                        <td>{{item.ttl}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <h4>Bloqueados</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="bloqueado_2.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Prioridad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of bloqueado_2">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.prioridad}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--...........................................PROCESADOR 3...............................-->
+                <div class="row">
+                    <h2>Procesador 3</h2>
+                    <h4>CPU </h4>
+                    <div class="col-xs-12 centered" *ngIf="ejecucion_3.length > 0">
+                        <div class="cpu">
+                            <table class=" table table-striped">
+                                <thead>
+                                    <tr *ngIf="ejecucion_3[0].prioridad=='sistema'">
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Quántum</th>
+                                        <th>Prioridad</th>
+                                    </tr>
+                                    <tr *ngIf="ejecucion_3[0].prioridad!='sistema'">
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Prioridad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngIf="ejecucion_3[0].prioridad=='sistema'">
+
+                                        <td>{{ejecucion_3[0].nombre}}</td>
+                                        <td>{{ejecucion_3[0].tiempo}}</td>
+                                        <td>{{ejecucion_3[0].recurso}}</td>
+                                        <td>{{ejecucion_3[0].quantum}}</td>
+                                        <td>{{ejecucion_3[0].prioridad}}</td>
+                                    </tr>
+                                    <tr *ngIf="ejecucion_3[0].prioridad!='sistema'">
+
+                                        <td>{{ejecucion_3[0].nombre}}</td>
+                                        <td>{{ejecucion_3[0].tiempo}}</td>
+                                        <td>{{ejecucion_3[0].recurso}}</td>
+                                        <td>{{ejecucion_3[0].prioridad}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h3>Diagrama de Gantt</h3>
+                            <canvas #gant_3 height="20px"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 centered">
+                        <h4>Round Robin (P = 1)</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="listos_RR_3.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tiempo</th>
+                                        <th>Recurso</th>
+                                        <th>Quántum</th>
+                                        <th>Prioridad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of listos_RR_3">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.tiempo}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.quantum}}</td>
+                                        <td>{{item.prioridad}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <h4>Terminados</h4>
+                        <div class="colas">
+                            <table class=" table table-striped" *ngIf="terminado_3.length > 0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Recurso</th>
+                                        <th>Prioridad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of terminado_3">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.recurso}}</td>
+                                        <td>{{item.prioridad}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4>SJF (P = 2)</h4>
+                            <div class="colas">
+                                <table class=" table table-striped" *ngIf="listos_sjf_3.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tiempo</th>
+                                            <th>Recurso</th>
+                                            <th>Prioridad</th>
+                                            <th>TTL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of listos_sjf_3">
+                                            <td>{{item.nombre}}</td>
+                                            <td>{{item.tiempo}}</td>
+                                            <td>{{item.recurso}}</td>
+                                            <td>{{item.prioridad}}</td>
+                                            <td>{{item.ttl}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <h4>Suspendidos</h4>
+                            <div class="colas">
+                                <table class=" table table-striped" *ngIf="suspendido_3.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tiempo</th>
+                                            <th>Recurso</th>
+                                            <th>Prioridad</th>
+                                            <th>Espera</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of suspendido_3">
+                                            <td>{{item.nombre}}</td>
+                                            <td>{{item.tiempo}}</td>
+                                            <td>{{item.recurso}}</td>
+                                            <td>{{item.prioridad}}</td>
+                                            <td>{{t_suspendido}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4>SRTF (P = 3)</h4>
+                            <div class="colas">
+                                <table class=" table table-striped" *ngIf="listos_srtf_3.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tiempo</th>
+                                            <th>Recurso</th>
+                                            <th>Prioridad</th>
+                                            <th>TTL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of listos_srtf_3">
+                                            <td>{{item.nombre}}</td>
+                                            <td>{{item.tiempo}}</td>
+                                            <td>{{item.recurso}}</td>
+                                            <td>{{item.prioridad}}</td>
+                                            <td>{{item.ttl}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <h4>Bloqueados</h4>
+                            <div class="colas">
+                                <table class=" table table-striped" *ngIf="bloqueado_3.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Tiempo</th>
+                                            <th>Recurso</th>
+                                            <th>Prioridad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of bloqueado_3">
+                                            <td>{{item.nombre}}</td>
+                                            <td>{{item.tiempo}}</td>
+                                            <td>{{item.recurso}}</td>
+                                            <td>{{item.prioridad}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>

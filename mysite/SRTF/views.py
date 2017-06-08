@@ -89,6 +89,8 @@ def srtf(request):
             context['recurso'] = recurso
             context['procesador'] = procesador
             context['estado'] = estado
+            context['prioridad'] = 'Usuario'
+            context['ttl'] = round(tiempo * 1.5)
 
             proceso = Nodo()
 

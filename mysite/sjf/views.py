@@ -90,6 +90,8 @@ def sjf(request):
             context['procesador'] = procesador
             context['estado'] = estado
             context['quantum'] = tiempo
+            context['prioridad'] = 'E/S'
+            context['ttl'] = round(tiempo * 1.5)
 
             proceso = Nodo()
 
