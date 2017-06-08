@@ -97,16 +97,16 @@ def sjf(request):
 
             if int(procesador) == 1:
                 proceso.info = context
-                print "Proceso a Procesador 1"
+                print "[SJF] Proceso a Procesador 1"
                 listos.push(proceso)
             if int(procesador) == 2:
                 proceso.info = context
-                print "Proceso a Procesador 2"
+                print "[SJF] Proceso a Procesador 2"
                 listos_p2.push(proceso)
 
             if int(procesador) == 3:
                 proceso.info = context
-                print "Proceso a Procesador 3"
+                print "[SJF] Proceso a Procesador 3"
                 listos_p3.push(proceso)
 
             crearHilo(context['nombre'], context['tiempo'],

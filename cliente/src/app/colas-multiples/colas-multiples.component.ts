@@ -180,14 +180,14 @@ export class ColasMultiplesComponent implements OnInit {
         this.suspendido.length == 0 &&
         this.bloqueado.length == 0 &&
         this.ejecucion.length == 0 &&
-        
+
         this.listos_RR_2.length == 0 &&
         this.listos_sjf_2.length == 0 &&
         this.listos_srtf_2.length == 0 &&
         this.suspendido_2.length == 0 &&
         this.bloqueado_2.length == 0 &&
         this.ejecucion_2.length == 0 &&
-        
+
         this.listos_RR_3.length == 0 &&
         this.listos_sjf_3.length == 0 &&
         this.listos_srtf_3.length == 0 &&
@@ -395,27 +395,27 @@ export class ColasMultiplesComponent implements OnInit {
           if (this.ejecucion_2[0].tiempo > this.ejecucion_2[0].quantum) {
             if (this.ejecucion_2[0].quantum == 0) {
               this.suspendido.push(this.ejecucion_2.pop())
-              this.notificarSuspendido(1);
+              this.notificarSuspendido_2(1);
               if (this.listos_RR_2.length > 0) {
                 this.ejecucion_2.push(this.listos_RR_2.shift())
               }
             }
           } else {
             if (this.ejecucion_2[0].tiempo == 0) {
-              this.terminado.push(this.ejecucion_2.pop())
+              this.terminado_2.push(this.ejecucion_2.pop())
             }
           }
         } else if (this.ejecucion_2[0].prioridad == 'E/S') {  //---------------SJF-----------||
           this.ejecucion_2[0].tiempo -= 1;
           if (this.ejecucion_2[0].tiempo == 0) {
-            this.terminado.push(this.ejecucion_2.pop())
+            this.terminado_2.push(this.ejecucion_2.pop())
           }
         } else {                              //---------------SRTF-----------||
           this.ejecucion_2[0].tiempo -= 1;
           if (this.listos_srtf_2.length > 0) {
             if (this.ejecucion_2[0].tiempo > this.listos_srtf_2[0].tiempo) {
-              this.suspendido.push(this.ejecucion_2.pop())
-              this.notificarSuspendido(3)
+              this.suspendido_2.push(this.ejecucion_2.pop())
+              this.notificarSuspendido_2(3)
               this.ejecucion_2.push(this.listos_srtf_2.shift())
             }
           }
@@ -423,7 +423,6 @@ export class ColasMultiplesComponent implements OnInit {
             this.terminado_2.push(this.ejecucion_2.shift())
             //this.tiempo_ejecucion_2 = 0;
             //this.recurso_disponible.push(this.recurso_en_uso.shift())
-            console.log("[PROC 1] Recurso Liberado ", this.recurso_disponible)
           }
         }
       }
@@ -484,28 +483,28 @@ export class ColasMultiplesComponent implements OnInit {
 
           if (this.ejecucion_3[0].tiempo > this.ejecucion_3[0].quantum) {
             if (this.ejecucion_3[0].quantum == 0) {
-              this.suspendido.push(this.ejecucion_3.pop())
-              this.notificarSuspendido(1);
+              this.suspendido_3.push(this.ejecucion_3.pop())
+              this.notificarSuspendido_3(1);
               if (this.listos_RR_3.length > 0) {
                 this.ejecucion_3.push(this.listos_RR_3.shift())
               }
             }
           } else {
             if (this.ejecucion_3[0].tiempo == 0) {
-              this.terminado.push(this.ejecucion_3.pop())
+              this.terminado_3.push(this.ejecucion_3.pop())
             }
           }
         } else if (this.ejecucion_3[0].prioridad == 'E/S') {  //---------------SJF-----------||
           this.ejecucion_3[0].tiempo -= 1;
           if (this.ejecucion_3[0].tiempo == 0) {
-            this.terminado.push(this.ejecucion_3.pop())
+            this.terminado_3.push(this.ejecucion_3.pop())
           }
         } else {                              //---------------SRTF-----------||
           this.ejecucion_3[0].tiempo -= 1;
           if (this.listos_srtf_3.length > 0) {
             if (this.ejecucion_3[0].tiempo > this.listos_srtf_3[0].tiempo) {
-              this.suspendido.push(this.ejecucion_3.pop())
-              this.notificarSuspendido(3)
+              this.suspendido_3.push(this.ejecucion_3.pop())
+              this.notificarSuspendido_3(3)
               this.ejecucion_3.push(this.listos_srtf_3.shift())
             }
           }
@@ -764,13 +763,11 @@ export class ColasMultiplesComponent implements OnInit {
               this.getListosRR()
             } else {
               var info = jquery.extend({}, this.param)
-              if (this.param.procesador == 1) {
-                var aux = this.calcularQuantum(this.listos_RR_2, info.tiempo)
-                info.quantum = aux
-                info.prioridad = 'sistema'
-                this.listos_RR_2.push(info)
+              var aux = this.calcularQuantum(this.listos_RR_2, info.tiempo)
+              info.quantum = aux
+              info.prioridad = 'sistema'
+              this.listos_RR_2.push(info)
 
-              }
             }
           })
       }
@@ -800,6 +797,56 @@ export class ColasMultiplesComponent implements OnInit {
                 info.ttl = info.tiempo * 1.5
                 info.prioridad = 'Usuario'
                 this.listos_srtf_2.push(info)
+              }
+            }
+          })
+      }
+    }
+
+    if (this.param.procesador == 3) {
+      this.total_procesos_3.push(this.param);
+      if (this.prioridad == 1) {
+        this.rrService.postAgregarProceso(this.param)
+          .then(() => {
+            if (!this.enEjecucion) {
+              this.getListosRR()
+            } else {
+              var info = jquery.extend({}, this.param)
+              var aux = this.calcularQuantum(this.listos_RR_3, info.tiempo)
+              info.quantum = aux
+              info.prioridad = 'sistema'
+              this.listos_RR_3.push(info)
+
+
+            }
+          })
+      }
+      if (this.prioridad == 2) {
+        this.sjfService.postAgregarProceso(this.param)
+          .then(() => {
+            if (!this.enEjecucion) {
+              this.getListosSjf()
+            } else {
+              var info = jquery.extend({}, this.param)
+              if (this.param.procesador == 1) {
+                info.ttl = info.tiempo * 1.5
+                info.prioridad = 'E/S'
+                this.listos_sjf_3.push(info)
+              }
+            }
+          })
+      }
+      if (this.prioridad == 3) {
+        this.srtfService.postAgregarProceso(this.param)
+          .then(() => {
+            if (!this.enEjecucion) {
+              this.getListosSrtf()
+            } else {
+              var info = jquery.extend({}, this.param)
+              if (this.param.procesador == 1) {
+                info.ttl = info.tiempo * 1.5
+                info.prioridad = 'Usuario'
+                this.listos_srtf_3.push(info)
               }
             }
           })
